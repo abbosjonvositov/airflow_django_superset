@@ -12,5 +12,7 @@ django.setup()
 from real_estate_dashapp.models import DimTime  # Replace with actual model
 
 
-def load_data():
+def load_data(ti):
     print("Loading data using Django ORM...")
+    transformed_data = ti.xcom_pull(task_ids='transform_data')  # Task ID for OLX
+    print(transformed_data)

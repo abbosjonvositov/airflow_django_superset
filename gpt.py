@@ -3,24 +3,20 @@ import os
 import pymysql
 import mysql.connector
 import sshtunnel
+import logging
+from airflow.models import Variable
+import time
 
-# from django.utils.timezone import now
-# from django.db.models import Max
-# from real_estate_dashapp.models import DimTime
-#
-# # Set Django project path and settings
-# sys.path.append("/opt/airflow/django_project")
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "real_estate_dash.settings")
-#
-# import django
-# django.setup()
+# Configure logging for Airflow
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("SSH_MySQL_Extractor")
 
 # SSH Configuration
 SSH_CONFIG = {
     "ssh_address": "ssh.pythonanywhere.com",
     "ssh_port": 22,
     "ssh_username": "gullolacorp",
-    "ssh_password": "iambadguy571",
+    "ssh_password": Variable.get("SSH_PASSWORD"),
     "remote_bind_address": "gullolacorp.mysql.pythonanywhere-services.com",
     "remote_bind_port": 3306
 }
@@ -28,68 +24,67 @@ SSH_CONFIG = {
 # MySQL Configuration
 MYSQL_CONFIG = {
     "user": "gullolacorp",
-    "password": "iambadguy571",
+    "password": Variable.get("MYSQL_PASSWORD"),
     "db": "gullolacorp$default",
     "connect_timeout": 60
 }
 
+MAX_RETRIES = 3
+RETRY_DELAY = 5  # seconds
+
 
 def ssh_tunnel_mysql_connection():
     """
-    Establishes an SSH tunnel and connects to the MySQL database.
+    Establishes an SSH tunnel and connects to the MySQL database with retry logic.
     """
-    try:
-        # Start SSH tunnel
-        tunnel = sshtunnel.SSHTunnelForwarder(
-            (SSH_CONFIG["ssh_address"], SSH_CONFIG["ssh_port"]),
-            ssh_username=SSH_CONFIG["ssh_username"],
-            ssh_password=SSH_CONFIG["ssh_password"],
-            remote_bind_address=(SSH_CONFIG["remote_bind_address"], SSH_CONFIG["remote_bind_port"])
-        )
-        tunnel.start()
-        print("🔗 SSH Tunnel established!")
+    attempts = 0
 
-        # Update MySQL host and port
-        MYSQL_CONFIG["host"] = "127.0.0.1"
-        MYSQL_CONFIG["port"] = tunnel.local_bind_port
+    while attempts < MAX_RETRIES:
+        try:
+            # Start SSH tunnel without timeout
+            tunnel = sshtunnel.SSHTunnelForwarder(
+                (SSH_CONFIG["ssh_address"], SSH_CONFIG["ssh_port"]),
+                ssh_username=SSH_CONFIG["ssh_username"],
+                ssh_password=SSH_CONFIG["ssh_password"],
+                remote_bind_address=(SSH_CONFIG["remote_bind_address"], SSH_CONFIG["remote_bind_port"]),
+            )
+            tunnel.start()
+            logger.info("🔗 SSH Tunnel established!")
 
-        # Connect to MySQL database
-        conn = mysql.connector.connect(**MYSQL_CONFIG)
-        if conn.is_connected():
-            print("✅ Connected to MySQL database successfully!")
-            return conn, tunnel  # Return both the connection and tunnel
-        else:
-            print("❌ MySQL connection failed.")
-            return None, None
-    except Exception as e:
-        print(f"❌ Error establishing SSH tunnel or MySQL connection: {e}")
-        return None, None
+            # Update MySQL host and port
+            MYSQL_CONFIG["host"] = "127.0.0.1"
+            MYSQL_CONFIG["port"] = tunnel.local_bind_port
 
-
-def fetch_latest_timestamp(source_prefix):
-    """
-    Fetches the latest timestamp for a given source (OLX or Uybor) using Django models.
-    """
-    try:
-        latest_entry = DimTime.objects.filter(
-            factapartments__apartment_id__startswith=source_prefix
-        ).aggregate(Max('datetime'))
-        latest_timestamp = latest_entry['datetime__max'] or now().replace(year=2000)
-        print(f"📅 Latest {source_prefix} timestamp: {latest_timestamp}")
-        return latest_timestamp
-    except Exception as e:
-        print(f"❌ Error fetching latest timestamp for {source_prefix}: {e}")
-        return None
+            # Establish MySQL connection with timeout handling
+            conn = mysql.connector.connect(
+                host=MYSQL_CONFIG["host"],
+                port=MYSQL_CONFIG["port"],
+                user=MYSQL_CONFIG["user"],
+                password=MYSQL_CONFIG["password"],
+                database=MYSQL_CONFIG["db"],
+                connect_timeout=MYSQL_CONFIG["connect_timeout"]
+            )
+            if conn.is_connected():
+                logger.info("✅ Connected to MySQL database successfully!")
+                return conn, tunnel  # Return both the connection and tunnel
+            else:
+                raise Exception("MySQL connection failed.")
+        except Exception as e:
+            attempts += 1
+            logger.error(f"❌ Attempt {attempts} failed: {e}")
+            if attempts < MAX_RETRIES:
+                logger.info(f"Retrying in {RETRY_DELAY} seconds...")
+                time.sleep(RETRY_DELAY)
+            else:
+                logger.error("❌ Maximum retry attempts reached. Unable to establish connection.")
+                raise e
 
 
 def extract_data(source):
     """
     Extracts new records from the MySQL database for the given source (OLX or Uybor).
     """
-    # latest_timestamp = fetch_latest_timestamp("O" if source == "OLX" else "U")
-    # if latest_timestamp is None:
-    #     return None
-    latest_timestamp = '2000-01-01s'
+    latest_timestamp = '2000-01-01'
     query = {
         "OLX": """
             SELECT id, last_refresh_time, total_area_key AS total_area, number_of_rooms_key AS number_of_rooms,
@@ -118,7 +113,7 @@ def extract_data(source):
     }[source]
 
     try:
-        db_conn, tunnel = ssh_tunnel_mysql_connection()
+        db_conn, tunnel = ssh_tunnel_mysql_connection()  # Ensure connection before extraction
         if not db_conn or not tunnel:
             return None
 
@@ -126,7 +121,10 @@ def extract_data(source):
         cursor.execute(query, (latest_timestamp,))
         data = cursor.fetchall()
 
-        print(f"✅ Fetched {len(data)} {source} records.")
+        logger.info(f"✅ Fetched {len(data)} {source} records.")
+
+        if not data:
+            logger.warning(f"No data extracted for source: {source}")
 
         # Close MySQL connection and SSH tunnel
         cursor.close()
@@ -134,7 +132,5 @@ def extract_data(source):
         tunnel.stop()
         return data
     except Exception as e:
-        print(f"❌ Error extracting {source} data: {e}")
-        return None
-
-# print(extract_data('OLX'))
+        logger.error(f"❌ Error extracting {source} data: {e}")
+        raise
