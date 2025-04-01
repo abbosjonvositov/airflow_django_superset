@@ -105,8 +105,7 @@ def extract_data(source):
                    location_region_normalized_name AS region_name
             FROM olx_data
             WHERE last_refresh_time > %s
-            ORDER BY last_refresh_time ASC
-            LIMIT 5;
+            ORDER BY last_refresh_time ASC;
         """,
         "Uybor": """
             SELECT id, updatedAt AS last_refresh_time, square AS total_area, room AS number_of_rooms,
@@ -117,8 +116,7 @@ def extract_data(source):
                    lat AS latitude, lng AS longitude, repair AS repair_name
             FROM uybor_data
             WHERE operationType = 'sale' AND updatedAt > %s
-            ORDER BY updatedAt ASC
-            LIMIT 5;
+            ORDER BY updatedAt ASC;
         """
     }[source]
 

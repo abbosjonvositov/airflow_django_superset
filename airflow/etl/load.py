@@ -32,10 +32,8 @@ def add_timezone(dt):
 
 def load_data(ti):
     all_data = ti.xcom_pull(task_ids='transform_data')  # Task ID for OLX
-    pprint(all_data)
     try:
         for index, row in enumerate(all_data):
-            print(row['city_name'])
             # Sync ORM methods
             city_dim, created_city = CityDim.objects.using('default').get_or_create(city_name=row.get('city_name'))
             region_dim, created_region = RegionDim.objects.using('default').get_or_create(
