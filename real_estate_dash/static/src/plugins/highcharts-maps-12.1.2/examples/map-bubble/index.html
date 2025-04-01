@@ -1,0 +1,105 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Highmaps Example</title>
+
+		<style type="text/css">
+#container {
+    height: 500px;
+    min-width: 310px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+		</style>
+	</head>
+	<body>
+
+<script src="../../code/highmaps.js"></script>
+<script src="../../code/modules/exporting.js"></script>
+<script src="../../code/modules/offline-exporting.js"></script>
+<script src="../../code/modules/accessibility.js"></script>
+
+<div id="container"></div>
+
+
+
+		<script type="text/javascript">
+(async () => {
+
+    const topology = await fetch(
+        'https://code.highcharts.com/mapdata/custom/world.topo.json'
+    ).then(response => response.json());
+
+    const data = await fetch(
+        'https://www.highcharts.com/samples/data/world-population.json'
+    ).then(response => response.json());
+
+    Highcharts.mapChart('container', {
+        chart: {
+            map: topology
+        },
+
+        title: {
+            text: 'World population 2016 by country'
+        },
+
+        subtitle: {
+            text: 'Demo of Highcharts map with bubbles'
+        },
+
+        accessibility: {
+            description: 'We see how China and India by far are the ' +
+                'countries with the largest population.'
+        },
+
+        legend: {
+            enabled: false
+        },
+
+        mapNavigation: {
+            enabled: true,
+            buttonOptions: {
+                verticalAlign: 'bottom'
+            }
+        },
+
+        mapView: {
+            fitToGeometry: {
+                type: 'MultiPoint',
+                coordinates: [
+                    // Alaska west
+                    [-164, 54],
+                    // Greenland north
+                    [-35, 84],
+                    // New Zealand east
+                    [179, -38],
+                    // Chile south
+                    [-68, -55]
+                ]
+            }
+        },
+
+        series: [{
+            name: 'Countries',
+            color: '#E0E0E0',
+            enableMouseTracking: false
+        }, {
+            type: 'mapbubble',
+            name: 'Population 2016',
+            joinBy: ['iso-a3', 'code3'],
+            data: data,
+            minSize: 4,
+            maxSize: '12%',
+            tooltip: {
+                pointFormat: '{point.properties.hc-a2}: {point.z} thousands'
+            }
+        }]
+    });
+})();
+
+		</script>
+	</body>
+</html>

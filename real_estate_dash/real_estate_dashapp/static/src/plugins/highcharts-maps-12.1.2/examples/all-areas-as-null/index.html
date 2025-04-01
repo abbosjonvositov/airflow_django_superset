@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Highmaps Example</title>
+
+		<style type="text/css">
+#container {
+    height: 500px;
+    min-width: 310px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+		</style>
+	</head>
+	<body>
+<script src="../../code/highmaps.js"></script>
+<script src="../../code/modules/exporting.js"></script>
+<script src="../../code/modules/offline-exporting.js"></script>
+<script src="../../code/modules/accessibility.js"></script>
+
+<div id="container"></div>
+
+
+
+		<script type="text/javascript">
+(async () => {
+
+    const topology = await fetch(
+        'https://code.highcharts.com/mapdata/custom/europe.topo.json'
+    ).then(response => response.json());
+
+    // Instantiate the map
+    Highcharts.mapChart('container', {
+        chart: {
+            map: topology
+        },
+
+        title: {
+            text: 'Nordic countries',
+            align: 'left'
+        },
+
+        subtitle: {
+            text: 'Demo of drawing all areas in the map, only highlighting ' +
+                'partial data',
+            align: 'left'
+        },
+
+        accessibility: {
+            typeDescription: 'Map of Europe.',
+            point: {
+                describeNull: false
+            }
+        },
+
+        legend: {
+            enabled: false
+        },
+
+        series: [{
+            name: 'Country',
+            data: [
+                ['is', 1],
+                ['no', 1],
+                ['se', 1],
+                ['dk', 1],
+                ['fi', 1]
+            ],
+            dataLabels: {
+                enabled: true,
+                color: '#FFFFFF',
+                format: '{point.name}',
+                nullFormat: ''
+            },
+            tooltip: {
+                headerFormat: '',
+                pointFormat: '{point.name}'
+            }
+        }]
+    });
+
+})();
+
+		</script>
+	</body>
+</html>

@@ -1,0 +1,100 @@
+{% load static %}
+<style>
+    .text-visible {
+    color: #ffffff; /* Black or any desired color */
+    font-size: 16px; /* Adjust as needed */
+    font-family: Arial, sans-serif; /* Or any font of your choice */
+}
+
+</style>
+<div class="left-side-bar">
+    <div class="brand-logo">
+        <a href="index.html">
+            <img src="{% static 'vendors/images/white_banner.png' %}" alt="" class="dark-logo">
+            <img src="{% static 'vendors/images/white_banner.png' %}" alt="" class="light-logo">
+        </a>
+        <div class="close-sidebar" data-toggle="left-sidebar-close">
+            <i class="ion-close-round"></i>
+        </div>
+    </div>
+    <div class="menu-block customscroll">
+        <div class="sidebar-menu">
+            <div class="">
+                <div class="pd-20 pt-10 height-100-p d-flex flex-column align-items-start" style="margin-top: 50px;">
+                    <!-- Filter Section -->
+                    <div class="filter-section w-100">
+                        <h5 class="text-visible pb-2">Filter Options</h5>
+                        <form id="filter-form">
+                            <!-- Date Filters -->
+                            <div class="d-flex flex-column gap-2 mt-2">
+                                <label class="text-visible" for="from-date">From Date</label>
+                                <input type="date" id="from-date" name="from_date" class="form-control mb-2">
+
+                                <label class="text-visible mt-3" for="to-date">To Date</label>
+                                <input type="date" id="to-date" name="to_date" class="form-control mb-3">
+                            </div>
+
+                            <!-- Filter Option 1 -->
+                            <div class="form-group">
+                                <label class="text-visible" for="dropdown1">Number of rooms</label>
+                                <select class="form-control filter" id="dropdown1" name="number_of_rooms">
+                                    <option value="" disabled selected>Select number of rooms</option>
+                                    {% for rooms in option_number_of_rooms %}
+                                    <option value="{{ rooms }}">{{ rooms }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Filter Option 2 -->
+                            <div class="form-group">
+                                <label class="text-visible" for="dropdown2">Total floors</label>
+                                <select class="form-control filter" id="dropdown2" name="total_floors">
+                                    <option value="" disabled selected>Select total floors</option>
+                                    {% for total_floors in option_total_floors %}
+                                    <option value="{{ total_floors }}">{{ total_floors }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Filter Option 3 -->
+                            <div class="form-group">
+                                <label class="text-visible" for="dropdown3">Floors</label>
+                                <select class="form-control filter" id="dropdown3" name="floors">
+                                    <option value="" disabled selected>Select floors</option>
+                                    {% for floors in option_floors %}
+                                    <option value="{{ floors }}">{{ floors }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Filter Option 4 -->
+                            <div class="form-group">
+                                <label class="text-visible" for="dropdown4">Type of market</label>
+                                <select class="form-control filter" id="dropdown4" name="type_of_market">
+                                    <option value="" disabled selected>Select type of market</option>
+                                    {% for type_of_market in option_type_of_market %}
+                                    <option value="{{ type_of_market }}">{{ type_of_market }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                         <!--   <div class="form-group">
+                                <label class="text-visible" for="dropdown5">Type of market</label>
+                                <select class="form-control filter" id="dropdown5" name="data_type">
+                                    <option value="" disabled selected>Select type of market</option>
+                                    <option value="district">District</option>
+                                    <option value="">Region</option>
+                                </select>
+                            </div>-->
+
+                            <!-- Reset Button -->
+                            <button class="btn btn-danger w-100 mt-3 text-visible" id="reset-button" type="button">Reset
+                                Filters
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,296 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Highmaps Example</title>
+
+		<style type="text/css">
+#container {
+    height: 500px;
+    min-width: 310px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.loading {
+    margin-top: 10em;
+    text-align: center;
+    color: #808080;
+}
+
+#popup-pie {
+    width: 280px;
+    height: 230px;
+    padding: 0.5em 1em;
+    cursor: default;
+}
+
+#annotation-header {
+    display: flex;
+    justify-content: space-between;
+    width: 280px;
+    align-items: center;
+    color: #333;
+    font-size: 1.45em;
+    font-weight: bold;
+    background: #e9e9e9;
+    padding: 0.4em 1em;
+    cursor: move;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+#annotation-close-btn {
+    width: 20px;
+    height: 20px;
+    padding: 1px;
+    color: #777;
+    text-align: center;
+    font-size: 0.7em;
+    font-weight: 700;
+    border: 1px solid #c5c5c5;
+    border-radius: 3px;
+    background: #f6f6f6;
+    cursor: pointer;
+    z-index: 999;
+}
+
+		</style>
+	</head>
+	<body>
+<script src="../../code/highmaps.js"></script>
+<script src="../../code/modules/annotations.js"></script>
+<script src="../../code/modules/data.js"></script>
+<script src="../../code/modules/exporting.js"></script>
+<script src="../../code/modules/offline-exporting.js"></script>
+<script src="../../code/modules/accessibility.js"></script>
+
+<div id="container">
+    <div class="loading">
+        <i class="icon-spinner icon-spin icon-large"></i>
+        Loading data from Google Spreadsheets...
+    </div>
+</div>
+
+
+
+		<script type="text/javascript">
+(async () => {
+
+    const mapData = await fetch(
+        'https://code.highcharts.com/mapdata/countries/us/us-all.topo.json'
+    ).then(response => response.json());
+
+    // Load the data from a Google Spreadsheet
+    Highcharts.data({
+        googleAPIKey: 'AIzaSyCQ0Jh8OFRShXam8adBbBcctlbeeA-qJOk',
+        googleSpreadsheetKey: '1uj1Gzv3fpH-b0w2tYpuKNp3TrGr43I9XAAqmgVE_jMs',
+
+        // Custom handler for columns
+        parsed: function (columns) {
+
+            /**
+             * Event handler for clicking points.
+             */
+            function pointClick() {
+                const row = this.options.row,
+                    chart = this.series.chart;
+
+                // Remove existing annotation if present
+                chart.removeAnnotation('election-popup');
+
+                // Add new annotation with a pie chart
+                chart.addAnnotation({
+                    id: 'election-popup',
+                    labelOptions: {
+                        useHTML: true,
+                        backgroundColor: '#fff'
+                    },
+                    labels: [{
+                        point: {
+                            x: chart.plotWidth / 2,
+                            y: chart.plotHeight / 10
+                        },
+                        text: `
+                            <div id="annotation-header">
+                                <span>${this.name}</span>
+                                <button id="annotation-close-btn">
+                                X
+                                </button>
+                            </div>
+                            <div id="popup-pie"></div>
+                        `,
+                        shape: 'rect'
+                    }],
+                    zIndex: 10
+                });
+
+                // Create the pie chart inside the annotation
+                const pieChart = Highcharts.chart('popup-pie', {
+                    chart: {
+                        type: 'pie'
+                    },
+                    title: {
+                        text: null
+                    },
+                    legend: {
+                        enabled: true,
+                        reversed: true
+                    },
+                    navigation: {
+                        buttonOptions: {
+                            enabled: false
+                        }
+                    },
+                    series: [{
+                        name: 'Votes',
+                        data: [{
+                            name: 'Trump',
+                            color: '#C40401',
+                            y: parseInt(columns[3][row], 10)
+                        }, {
+                            name: 'Clinton',
+                            color: '#0200D0',
+                            y: parseInt(columns[2][row], 10)
+                        }],
+                        dataLabels: {
+                            format: '{point.percentage:.1f}%'
+                        },
+                        showInLegend: true
+                    }]
+                });
+
+                document.getElementById('annotation-close-btn')
+                    .addEventListener('click', function () {
+                        pieChart?.destroy();
+                        setTimeout(function () {
+                            chart.removeAnnotation('election-popup');
+                        }, 0);
+                    });
+
+            }
+
+            // Make the columns easier to read
+            let keys = columns[0];
+            const names = columns[1],
+                percent = columns[7],
+                // Build the chart options
+                options = {
+                    chart: {
+                        type: 'map',
+                        map: mapData,
+                        renderTo: 'container',
+                        borderWidth: 1,
+                        spacingBottom: 1
+                    },
+
+                    title: {
+                        text: 'US presidential election 2016 results',
+                        align: 'left'
+                    },
+                    subtitle: {
+                        text: 'Source: <a href="https://transition.fec.gov/pubrec/fe2016/2016presgeresults.pdf">Federal Election Commission</a>',
+                        align: 'left'
+                    },
+
+                    legend: {
+                        align: 'right',
+                        verticalAlign: 'top',
+                        x: -100,
+                        y: 70,
+                        floating: true,
+                        layout: 'vertical',
+                        valueDecimals: 0,
+                        backgroundColor: ( // theme
+                            Highcharts.defaultOptions &&
+                            Highcharts.defaultOptions.legend &&
+                            Highcharts.defaultOptions.legend.backgroundColor
+                        ) || 'rgba(255, 255, 255, 0.85)'
+                    },
+
+                    mapNavigation: {
+                        enabled: true,
+                        enableButtons: false
+                    },
+
+                    colorAxis: {
+                        dataClasses: [{
+                            from: -100,
+                            to: 0,
+                            color: '#0200D0',
+                            name: 'Clinton'
+                        }, {
+                            from: 0,
+                            to: 100,
+                            color: '#C40401',
+                            name: 'Trump'
+                        }]
+                    },
+
+                    series: [{
+                        data: [],
+                        joinBy: 'postal-code',
+                        dataLabels: {
+                            enabled: true,
+                            color: '#FFFFFF',
+                            format: '{point.postal-code}',
+                            style: {
+                                textTransform: 'uppercase'
+                            }
+                        },
+                        name: 'Republicans margin',
+                        point: {
+                            events: {
+                                click: pointClick
+                            }
+                        },
+                        tooltip: {
+                            ySuffix: ' %'
+                        },
+                        cursor: 'pointer'
+                    }, {
+                        name: 'Separators',
+                        type: 'mapline',
+                        nullColor: 'silver',
+                        showInLegend: false,
+                        enableMouseTracking: false,
+                        accessibility: {
+                            enabled: false
+                        }
+                    }]
+                };
+            keys = keys.map(function (key) {
+                return key.toUpperCase();
+            });
+            mapData.objects.default.geometries.forEach(function (geometry) {
+                if (geometry.properties['postal-code']) {
+                    const postalCode = geometry.properties['postal-code'],
+                        i = keys.indexOf(postalCode);
+                    options.series[0].data.push(Highcharts.extend({
+                        value: parseFloat(percent[i]),
+                        name: names[i],
+                        'postal-code': postalCode,
+                        row: i
+                    }, geometry));
+                }
+            });
+
+            // Initialize the chart
+            Highcharts.mapChart('container', options);
+        },
+
+        error: function () {
+            document.getElementById('container').innerHTML = `
+                <div class="loading">
+                    <p>Error loading data from Google Spreadsheets</p>
+                </div>
+            `;
+        }
+    });
+
+})();
+
+		</script>
+	</body>
+</html>

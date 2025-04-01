@@ -1,0 +1,77 @@
+
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Highmaps Examples</title>
+        <style>
+            * {
+                font-family: sans-serif;
+            }
+            ul.nav > li > div {
+                font-size: 1.5em;
+                font-weight: bold;
+                margin: 1em 0 0.3em 0;
+            }
+            ul.nav > li {
+                list-style: none;
+                display: black
+            }
+            div > ul > li {
+                padding-bottom: 0.5em;
+            }
+            ul ul {
+                list-style-type: initial;
+                padding-left: 1.25em;
+                font-size: 1.15em;
+            }
+            li button.sidebar-category {
+                border: none;
+                background: none;
+                padding: 0;
+                margin: 1rem 0 0.5rem 0;
+                font-size: 1.4rem;
+            }
+            li a {
+                text-decoration: none;
+                color: #6065c8;
+            }
+            li a:hover {
+                text-decoration: underline;
+            }
+        </style>
+    </head>
+    <body>
+    <h1>Highmaps Examples</h1>
+    <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 sidebar d-md-block"><ul class="nav nav-sidebar" role="menu">
+    <li>
+        <button aria-controls="general-demos" aria-expanded="false" class="sidebar-category" tabindex="0"><span>General</span><icon class="toggle"></icon></button>
+        <ul id="general-demos" role="group" >
+        <li role="menuitem"><a href="examples/./basic-map/index.html">Basic world map</a></li><li role="menuitem"><a href="examples/./all-maps/index.html">Overview</a></li><li role="menuitem"><a href="examples/./animated-mapline/index.html">Animated lines on a world map</a></li><li role="menuitem"><a href="examples/./audio-map/index.html">Audio map</a></li><li role="menuitem"><a href="examples/./map-trajectory/index.html">Audio map with trajectory</a></li><li role="menuitem"><a href="examples/./topojson-projection/index.html">Built-in projection</a></li><li role="menuitem"><a href="examples/./category-map/index.html">Categorized areas</a></li><li role="menuitem"><a href="examples/./cinema-seat-plan/index.html">Cinema seat plan</a></li><li role="menuitem"><a href="examples/./color-axis/index.html">Color axis and data labels</a></li><li role="menuitem"><a href="examples/./data-class-two-ranges/index.html">Data classes and popup</a></li><li role="menuitem"><a href="examples/./us-counties/index.html">Detailed map US counties</a></li><li role="menuitem"><a href="examples/./distribution/index.html">Distribution map</a></li><li role="menuitem"><a href="examples/./mapline-mappoint/index.html">GeoJSON with rivers and cities</a></li><li role="menuitem"><a href="examples/./all-areas-as-null/index.html">Highlighted areas</a></li><li role="menuitem"><a href="examples/./lightning/index.html">Lightning Map</a></li><li role="menuitem"><a href="examples/./locator-map/index.html">Map with locator</a></li><li role="menuitem"><a href="examples/./marker-clusters/index.html">Map with marker clusters</a></li><li role="menuitem"><a href="examples/./map-pies/index.html">Map with overlaid pie charts</a></li><li role="menuitem"><a href="examples/./pattern-fill-map/index.html">Map with pattern fills</a></li><li role="menuitem"><a href="examples/./data-class-ranges/index.html">Multiple data classes</a></li><li role="menuitem"><a href="examples/./flight-routes/index.html">Simple flight routes</a></li><li role="menuitem"><a href="examples/./us-data-labels/index.html">Small US with data labels</a></li><li role="menuitem"><a href="examples/./twm-providers/index.html">Tiled web map providers</a></li><li role="menuitem"><a href="examples/./twm-oslo-attractions/index.html">Tiled web map with points of interest</a></li>
+        </ul>
+    </li>
+    
+    <li>
+        <button aria-controls="dynamic-demos" aria-expanded="false" class="sidebar-category" tabindex="0"><span>Dynamic</span><icon class="toggle"></icon></button>
+        <ul id="dynamic-demos" role="group" >
+        <li role="menuitem"><a href="examples/./eu-capitals-temp/index.html">Current temperatures in capitals of Europe</a></li><li role="menuitem"><a href="examples/./map-drilldown/index.html">Drilldown</a></li><li role="menuitem"><a href="examples/./tooltip/index.html">Fixed tooltip with HTML</a></li><li role="menuitem"><a href="examples/./map-drilldown-preloaded/index.html">Map drilldown with preloaded data</a></li><li role="menuitem"><a href="examples/./projection-explorer/index.html">Projection Explorer</a></li><li role="menuitem"><a href="examples/./rich-info/index.html">Rich information on click</a></li><li role="menuitem"><a href="examples/./doubleclickzoomto/index.html">Zoom to area by double click</a></li>
+        </ul>
+    </li>
+    
+    <li>
+        <button aria-controls="input-formats-demos" aria-expanded="false" class="sidebar-category" tabindex="0"><span>Input formats</span><icon class="toggle"></icon></button>
+        <ul id="input-formats-demos" role="group" >
+        <li role="menuitem"><a href="examples/./latlon-advanced/index.html">Advanced lat/long</a></li><li role="menuitem"><a href="examples/./geojson/index.html">GeoJSON areas</a></li><li role="menuitem"><a href="examples/./mappoint-latlon/index.html">Map point with lat/long</a></li>
+        </ul>
+    </li>
+    
+    <li>
+        <button aria-controls="series-types-demos" aria-expanded="false" class="sidebar-category" tabindex="0"><span>Series types</span><icon class="toggle"></icon></button>
+        <ul id="series-types-demos" role="group" >
+        <li role="menuitem"><a href="examples/./mappoint-datalabels-mapmarker/index.html">Data labels as map markers</a></li><li role="menuitem"><a href="examples/./flowmap/index.html">Flowmap</a></li><li role="menuitem"><a href="examples/./flowmap-world-cup/index.html">Flowmap Flight Routes</a></li><li role="menuitem"><a href="examples/./geoheatmap-europe/index.html">Geo heatmap of Europe</a></li><li role="menuitem"><a href="examples/./geoheatmap-orthographic/index.html">Geo heatmap orthographic</a></li><li role="menuitem"><a href="examples/./geoheatmap-earth-statistics/index.html">GeoHeatmap with interpolation</a></li><li role="menuitem"><a href="examples/./heatmap/index.html">Heat map</a></li><li role="menuitem"><a href="examples/./map-bubble/index.html">Map bubble</a></li><li role="menuitem"><a href="examples/./mappoint-mapmarker/index.html">Map markers</a></li><li role="menuitem"><a href="examples/./flowmap-migration/index.html">Migration Flowmap</a></li><li role="menuitem"><a href="examples/./spider-map/index.html">Spider map</a></li><li role="menuitem"><a href="examples/./circlemap-africa/index.html">Tile map circles</a></li><li role="menuitem"><a href="examples/./diamondmap/index.html">Tile map diamonds</a></li><li role="menuitem"><a href="examples/./honeycomb-usa/index.html">Tile map honeycomb</a></li>
+        </ul>
+    </li>
+    </ul></div>
+    </body>
+</html>

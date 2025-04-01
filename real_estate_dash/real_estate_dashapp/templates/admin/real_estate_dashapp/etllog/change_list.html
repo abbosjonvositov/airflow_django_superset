@@ -1,0 +1,127 @@
+{% extends "admin/change_list.html" %}
+
+{% block content %}
+<h2>📊 ETL Performance Breakdown by Sources (Last 7 Days)</h2>
+
+<!-- Chart for Extracted Source Breakdown -->
+<canvas id="etlExtractedSourceChart" width="400" height="150"></canvas>
+
+<!-- Chart for Loaded Source Breakdown -->
+<canvas id="etlLoadedSourceChart" width="400" height="150"></canvas>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Parse JSON data
+        var etlData = JSON.parse('{{ etl_summary|escapejs }}');
+
+        // Chart for Extracted Source Breakdown
+        var extractedSourceCtx = document.getElementById("etlExtractedSourceChart").getContext("2d");
+        var extractedSourceDatasets = [];
+        var extractedSourceLabels = Object.keys(etlData["Extracted Source Breakdown"]);
+        var allExtractedSources = new Set();
+
+        // Collect all sources for extracted data
+        extractedSourceLabels.forEach(day => {
+            Object.keys(etlData["Extracted Source Breakdown"][day]).forEach(source => {
+                allExtractedSources.add(source);
+            });
+        });
+
+        // Prepare datasets for extracted sources
+        allExtractedSources.forEach(source => {
+            var sourceData = extractedSourceLabels.map(day => etlData["Extracted Source Breakdown"][day][source] || 0);
+            extractedSourceDatasets.push({
+                label: source,
+                data: sourceData,
+                backgroundColor: getRandomColor(),
+            });
+        });
+
+        var extractedSourceChart = new Chart(extractedSourceCtx, {
+            type: "bar",
+            data: {
+                labels: etlData["Days"],  // x-axis (dates)
+                datasets: extractedSourceDatasets,
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Days",  // Label for x-axis
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: "Counts",  // Label for y-axis
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chart for Loaded Source Breakdown
+        var loadedSourceCtx = document.getElementById("etlLoadedSourceChart").getContext("2d");
+        var loadedSourceDatasets = [];
+        var loadedSourceLabels = Object.keys(etlData["Loaded Source Breakdown"]);
+        var allLoadedSources = new Set();
+
+        // Collect all sources for loaded data
+        loadedSourceLabels.forEach(day => {
+            Object.keys(etlData["Loaded Source Breakdown"][day]).forEach(source => {
+                allLoadedSources.add(source);
+            });
+        });
+
+        // Prepare datasets for loaded sources
+        allLoadedSources.forEach(source => {
+            var sourceData = loadedSourceLabels.map(day => etlData["Loaded Source Breakdown"][day][source] || 0);
+            loadedSourceDatasets.push({
+                label: source,
+                data: sourceData,
+                backgroundColor: getRandomColor(),
+            });
+        });
+
+        var loadedSourceChart = new Chart(loadedSourceCtx, {
+            type: "bar",
+            data: {
+                labels: etlData["Days"],  // x-axis (dates)
+                datasets: loadedSourceDatasets,
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Days",  // Label for x-axis
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: "Counts",  // Label for y-axis
+                        }
+                    }
+                }
+            }
+        });
+
+        // Function to generate random colors (optional)
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+    });
+</script>
+
+{{ block.super }}  {# Render default Django admin content below #}
+
+{% endblock %}
