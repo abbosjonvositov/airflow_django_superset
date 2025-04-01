@@ -20,13 +20,17 @@ from extract import extract_data
 from transform import transform_data
 from load import load_data
 
+
+
+
+
 default_args = {
     'owner': 'airflow',
-    'depends_on_past': False,
+    'depends_on_past': False,  # Prevents dependencies on previous task runs
     'start_date': datetime(2024, 4, 1),
     'email_on_failure': False,
     'email_on_retry': False,
-    'retries': 1,
+    'retries': 0,  # Disable retries to avoid unintended task loops
     'retry_delay': timedelta(minutes=5),
 }
 
@@ -34,7 +38,9 @@ dag = DAG(
     'etl_dag',
     default_args=default_args,
     description='ETL Pipeline DAG',
-    schedule_interval=timedelta(days=1),
+    schedule_interval=timedelta(days=1),  # Scheduled to run daily
+    catchup=False,  # Disable catching up on missed runs
+    max_active_runs=1,  # Limit DAG to one active instance
 )
 
 extract_task_olx = PythonOperator(
