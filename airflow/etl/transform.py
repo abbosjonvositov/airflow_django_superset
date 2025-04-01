@@ -80,28 +80,32 @@ def transform_data(ti):
                 print(f"❌ Error processing data: Missing 'id' in record {index + 1}")
                 continue
             # Set default values for missing fields
-            row = {key: (value if value is not None else default_value) for key, value, default_value in [
-                ('city_name', row.get('city_name', 'Unknown'), 'Unknown'),
-                ('region_name', row.get('region_name', 'Unknown'), 'Unknown'),
-                ('district_name', row.get('district_name', 'Unknown'), 'Unknown'),
-                ('latitude', row.get('latitude', 0), 0),
-                ('longitude', row.get('longitude', 0), 0),
-                ('total_area', row.get('total_area', 0), 0),
-                ('number_of_rooms', row.get('number_of_rooms', 0), 0),
-                ('floor', row.get('floor', 0), 0),
-                ('total_floors', row.get('total_floors', 0), 0),
-                ('price_per_sqm', row.get('price_per_sqm', 0), 0),
-                ('price', row.get('price', 0), 0),
-                ('id', row.get('id', 0), 0),
-                ('last_refresh_time', row.get('last_refresh_time', 0), 0),
-                ('layout_name', row.get('layout_name', 'Unknown'), 'Unknown'),
-                ('foundation_name', row.get('foundation_name', 'Unknown'), 'Unknown'),
-                ('wc_name', row.get('wc_name', 'Unknown'), 'Unknown'),
-                ('repair_name', row.get('repair_name', 'Unknown'), 'Unknown'),
-                ('type_of_market_key', row.get('type_of_market_key', 'Unknown'), 'Unknown'),
-                ('is_furnished', row.get('is_furnished', 'Unknown'), 'Unknown'),
-                ('year_of_construction', row.get('year_of_construction', 0), 0),
-            ]}
+            row = {
+                key: (row.get(key, default_value) if row.get(key, default_value) is not None else default_value)
+                for key, default_value in [
+                    ('city_name', 'Unknown'),
+                    ('region_name', 'Unknown'),
+                    ('district_name', 'Unknown'),
+                    ('latitude', 0),
+                    ('longitude', 0),
+                    ('total_area', 0),
+                    ('number_of_rooms', 0),
+                    ('floor', 0),
+                    ('total_floors', 0),
+                    ('price_per_sqm', 0),
+                    ('price', 0),
+                    ('id', 0),
+                    ('last_refresh_time', 0),
+                    ('layout_name', 'Unknown'),
+                    ('foundation_name', 'Unknown'),
+                    ('wc_name', 'Unknown'),
+                    ('repair_name', 'Unknown'),
+                    ('type_of_market_key', 'Unknown'),
+                    ('is_furnished', 'Unknown'),
+                    ('year_of_construction', 0),
+                ]
+            }
+
             row['number_of_rooms'] = clean_numbers(row.get('number_of_rooms'))
             row['total_area'] = clean_numbers(row.get('total_area'))
             row['floor'] = clean_numbers(row.get('floor'))
@@ -116,4 +120,3 @@ def transform_data(ti):
         return all_data
     except Exception as e:
         raise RuntimeError(f"❌ Error transforming data: {e}")
-
