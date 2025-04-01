@@ -36,6 +36,8 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: "False"
     ports:
       - "8080:8080"
+    env_file:
+      - .env  # Load environment variables from .env file
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/etl:/opt/airflow/etl
