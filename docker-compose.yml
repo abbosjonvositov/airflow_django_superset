@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  postgres_db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    env_file:
+      - .env  # Load environment variables from .env file
+    environment:
+      POSTGRES_DB: ${SQL_NAME}
+      POSTGRES_USER: ${SQL_USER}
+      POSTGRES_PASSWORD: ${SQL_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      interval: 5s
+      retries: 5
+      start_period: 10s
+
+  airflow:
+    build: ./airflow  # Use the custom Airflow Dockerfile
+    container_name: airflow_webserver
+    restart: always
+    depends_on:
+      postgres_db:
+        condition: service_healthy  # Ensure PostgreSQL is ready
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${SQL_USER}:${SQL_PASSWORD}@postgres_db:5432/${SQL_NAME}
+      AIRFLOW__CORE__FERNET_KEY: 'IXsN7r2LPXSjCqgakzZMeTT3xlDr0Wo27ETyM5BGLNk='
+      AIRFLOW__WEBSERVER__RBAC: "True"
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/etl:/opt/airflow/etl
+      - ./real_estate_dash:/opt/airflow/django_project  # Mount Django project inside Airflow
+    command: >
+      bash -c "until pg_isready -h postgres_db -p 5432 -U ${SQL_USER}; do sleep 2; done &&
+               airflow db init &&
+               airflow users create --username admin --password admin --firstname Airflow --lastname Admin --role Admin --email admin@example.com &&
+               airflow webserver & sleep 10 && airflow scheduler"
+
+  django_app:
+    build: ./real_estate_dash
+    container_name: django_app
+    restart: always
+    depends_on:
+      postgres_db:
+        condition: service_healthy  # Wait for PostgreSQL to be ready
+    env_file:
+      - .env  # Load environment variables from .env file
+    environment:
+      DJANGO_SETTINGS_MODULE: real_estate_dash.settings
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./real_estate_dash:/app
+    command: >
+      bash -c "until pg_isready -h postgres_db -p 5432 -U ${SQL_USER}; do sleep 2; done &&
+               python manage.py makemigrations &&
+               python manage.py migrate &&
+               python manage.py runserver 0.0.0.0:8000"
+
+volumes:
+  postgres_data:
