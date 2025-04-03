@@ -36,3 +36,4 @@ TALISMAN_CONFIG = {
     "force_https": False,
     "session_cookie_secure": False,
 }
+PUBLIC_ROLE_LIKE = "Gamma"
