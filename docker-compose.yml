@@ -69,5 +69,30 @@ services:
                python manage.py migrate &&
                python manage.py runserver 0.0.0.0:8000"
 
+  superset:
+    image: apache/superset:latest
+    container_name: superset
+    restart: always
+    depends_on:
+      postgres_db:
+        condition: service_healthy  # Ensure PostgreSQL is ready
+    environment:
+      SUPERSET_WEBSERVER_PORT: 8088
+      SUPERSET_DB_HOST: postgres_db
+      SUPERSET_DB_PORT: 5432
+      SUPERSET_DB_NAME: ${SQL_NAME}
+      SUPERSET_DB_USER: ${SQL_USER}
+      SUPERSET_DB_PASSWORD: ${SQL_PASSWORD}
+    ports:
+      - "8088:8088"
+    volumes:
+      - ./superset:/app
+    command: >
+      bash -c "superset fab create-admin --username admin --password admin --firstname Superset --lastname Admin --email admin@example.com &&
+               superset db upgrade &&
+               superset init && 
+               superset run -h 0.0.0.0 -p 8088"
+
 volumes:
   postgres_data:
+  superset:
