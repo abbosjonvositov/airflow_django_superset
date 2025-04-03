@@ -70,29 +70,29 @@ services:
                python manage.py runserver 0.0.0.0:8000"
 
   superset:
-      image: apache/superset:latest
-      container_name: superset
-      restart: always
-      depends_on:
-        postgres_db:
-          condition: service_healthy
-      env_file:
-        - .env  # Load environment variables from .env file
-      environment:
-        SUPERSET_WEBSERVER_PORT: 8088
-        SUPERSET_SECRET_KEY: 'mysecretkey123'
-        SUPERSET_CONFIG_PATH: /app/pythonpath/superset_config.py
-      ports:
-        - "8088:8088"
-      volumes:
-        - ./superset:/home/superset  # Mount your cloned directory here
-        - ./superset/superset_config.py:/app/pythonpath/superset_config.py
-      command: >
-        bash -c "pip install -r /home/superset/requirements.txt &&
-                 superset db upgrade &&
-                 superset init &&
-                 superset fab create-admin --username admin --password admin --firstname Superset --lastname Admin --email admin@example.com &&
-                 superset run -h 0.0.0.0 -p 8088"
+    image: apache/superset:latest
+    container_name: superset
+    restart: always
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    env_file:
+      - .env  # Load environment variables from .env file
+    environment:
+      SUPERSET_WEBSERVER_PORT: 8088
+      SUPERSET_SECRET_KEY: 'mysecretkey123'
+      SUPERSET_CONFIG_PATH: /app/superset_config.py
+    ports:
+      - "8088:8088"
+    volumes:
+      - ./superset:/home/superset  # Mount your cloned directory here
+      - ./superset/superset_config.py:/app/superset_config.py
+    command: >
+      bash -c "pip install -r /home/superset/req.txt &&
+               superset db upgrade &&
+               superset init &&
+               superset fab create-admin --username admin --password admin --firstname Superset --lastname Admin --email admin@example.com &&
+               superset run -h 0.0.0.0 -p 8088"
 
 volumes:
   postgres_data:
