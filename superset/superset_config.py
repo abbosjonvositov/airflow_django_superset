@@ -40,4 +40,5 @@ PUBLIC_ROLE_LIKE = "Gamma"
 
 import os
 
-SQLALCHEMY_DATABASE_URI = f"mysql+mysqlconnector://{os.environ.get('MYSQL_USER')}:{os.environ.get('MYSQL_PASSWORD')}@mysql_db:3306/{os.environ.get('MYSQL_NAME')}"
+# SQLALCHEMY_DATABASE_URI = f"mysql+mysqlconnector://{os.environ.get('MYSQL_USER')}:{os.environ.get('MYSQL_PASSWORD')}@mysql_db:3306/{os.environ.get('MYSQL_NAME')}"
+SQLALCHEMY_DATABASE_URI = 'sqlite:////app/superset.db'

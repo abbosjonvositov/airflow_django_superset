@@ -87,6 +87,7 @@ services:
     volumes:
       - ./superset:/home/superset  # Mount your cloned directory here
       - ./superset/superset_config.py:/app/superset_config.py
+      - ./data:/app
     command: >
       bash -c "pip install -r /home/superset/req.txt &&
                superset db upgrade &&
