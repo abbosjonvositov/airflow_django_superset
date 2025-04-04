@@ -40,4 +40,4 @@ PUBLIC_ROLE_LIKE = "Gamma"
 
 import os
 
-SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{os.environ.get('SQL_USER')}:{os.environ.get('SQL_PASSWORD')}@postgres_db:5432/{os.environ.get('SQL_NAME')}"
+SQLALCHEMY_DATABASE_URI = f"mysql+mysqlconnector://{os.environ.get('MYSQL_USER')}:{os.environ.get('MYSQL_PASSWORD')}@mysql_db:3306/{os.environ.get('MYSQL_NAME')}"
