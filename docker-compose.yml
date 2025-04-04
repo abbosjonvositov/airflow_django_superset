@@ -70,7 +70,7 @@ services:
                python manage.py runserver 0.0.0.0:8000"
 
   superset:
-    image: apache/superset:latest
+    image: apache/superset:4.1.2
     container_name: superset
     restart: always
     depends_on:
