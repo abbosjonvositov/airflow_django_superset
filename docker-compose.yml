@@ -74,7 +74,7 @@ services:
     container_name: superset
     restart: always
     depends_on:
-      mysql_db:
+      postgres_db:
         condition: service_healthy  # Ensure MySQL is ready
     env_file:
       - .env  # Load environment variables from .env file
@@ -87,7 +87,8 @@ services:
     volumes:
       - ./superset:/home/superset  # Mount your cloned directory here
       - ./superset/superset_config.py:/app/superset_config.py
-      - ./data:/app
+      - ./superset_home:/app/superset_home
+      - ./superset_home/superset_config.py:/app/superset_config.py
     command: >
       bash -c "pip install -r /home/superset/req.txt &&
                superset db upgrade &&
@@ -95,26 +96,6 @@ services:
                superset fab create-admin --username admin --password admin --firstname Superset --lastname Admin --email admin@example.com &&
                superset run -h 0.0.0.0 -p 8088"
 
-  mysql_db:
-    image: mysql:8.0
-    container_name: mysql_db
-    restart: always
-    env_file:
-      - .env  # Load environment variables from .env file
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_NAME}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: [ "CMD-SHELL", "mysqladmin -u$$MYSQL_USER -p$$MYSQL_PASSWORD ping" ]
-      interval: 5s
-      retries: 5
-      start_period: 10s
 
 volumes:
   postgres_data:
