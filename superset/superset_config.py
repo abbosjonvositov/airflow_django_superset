@@ -1,6 +1,7 @@
 OVERRIDE_HTTP_HEADERS = {'X-Frame-Options': 'ALLOWALL'}
 TALISMAN_ENABLED = True
 ENABLE_CORS = True
+ENABLE_PROXY_FIX = True
 HTTP_HEADERS = {"X-Frame-Options": "ALLOWALL"}
 FEATURE_FLAGS = {
     "DASHBOARD_RBAC": True
@@ -40,6 +41,11 @@ PUBLIC_ROLE_LIKE = "Gamma"
 
 import os
 
-# SQLALCHEMY_DATABASE_URI = 'sqlite:////app/superset.db'
+# SQLALCHEMY_DATABASE_URI = 'sqlite:////app/superset_home/superset.db'
 
 # SQLALCHEMY_DATABASE_URI = f"mysql+mysqlconnector://{os.environ.get('MYSQL_USER')}:{os.environ.get('MYSQL_PASSWORD')}@mysql_db:3306/{os.environ.get('MYSQL_NAME')}"
+
+
+
+
+
