@@ -44,7 +44,7 @@ services:
       - ./real_estate_dash:/opt/airflow/django_project  # Mount Django project inside Airflow
     command: >
       bash -c "until pg_isready -h postgres_db -p 5432 -U ${SQL_USER}; do sleep 2; done &&
-               airflow db init &&
+               airflow db init && airflow db upgrade
                airflow users create --username admin --password admin --firstname Airflow --lastname Admin --role Admin --email admin@example.com &&
                airflow webserver & sleep 10 && airflow scheduler"
 
@@ -69,13 +69,18 @@ services:
                python manage.py migrate &&
                python manage.py runserver 0.0.0.0:8000"
 
+
+
   superset:
-    image: apache/superset:4.1.2
+    build:
+      context: .  # Set the build context to the root directory
+      dockerfile: superset_docker/Dockerfile  # Path to your custom Dockerfile
+    image: custom-superset:latest  # Custom image name
     container_name: superset
     restart: always
     depends_on:
       postgres_db:
-        condition: service_healthy  # Ensure MySQL is ready
+        condition: service_healthy  # Ensure PostgreSQL is ready
     env_file:
       - .env  # Load environment variables from .env file
     environment:
@@ -94,6 +99,7 @@ services:
                superset init &&
                superset fab create-admin --username admin --password admin --firstname Superset --lastname Admin --email admin@example.com &&
                superset run -h 0.0.0.0 -p 8088"
+
 
 
 volumes:

@@ -1,3 +1,7 @@
 flask-cors
-psycopg2-binary==2.9.10
+psycopg2-binary
 apache_superset[cors]
+pyodbc
+sqlalchemy
+sqlalchemy-pytds
+sqlalchemy-access
