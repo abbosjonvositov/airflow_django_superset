@@ -37,15 +37,10 @@ TALISMAN_CONFIG = {
     "force_https": False,
     "session_cookie_secure": False,
 }
-PUBLIC_ROLE_LIKE = "Gamma"
-
+# PUBLIC_ROLE_LIKE = "Gamma"
+# AUTH_ROLE_PUBLIC = 'Public'
 import os
 
 # SQLALCHEMY_DATABASE_URI = 'sqlite:////app/superset_home/superset.db'
 
 # SQLALCHEMY_DATABASE_URI = f"mysql+mysqlconnector://{os.environ.get('MYSQL_USER')}:{os.environ.get('MYSQL_PASSWORD')}@mysql_db:3306/{os.environ.get('MYSQL_NAME')}"
-
-
-
-
-
