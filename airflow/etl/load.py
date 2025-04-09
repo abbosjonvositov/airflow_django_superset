@@ -18,6 +18,7 @@ from datetime import datetime
 import pytz
 from pprint import pprint
 
+
 def add_timezone(dt):
     if isinstance(dt, str):
         dt = datetime.strptime(dt, '%Y-%m-%dT%H:%M:%S.%fZ')
@@ -30,8 +31,10 @@ def add_timezone(dt):
     return dt.astimezone(tashkent_tz)
 
 
-def load_data(ti):
-    all_data = ti.xcom_pull(task_ids='transform_data')  # Task ID for OLX
+def load_data(**context):
+    # all_data = ti.xcom_pull(task_ids='transform_data')
+    all_data = context['task_instance'].xcom_pull(task_ids='transform_data', key='transformed_data')
+
     try:
         for index, row in enumerate(all_data):
             # Sync ORM methods

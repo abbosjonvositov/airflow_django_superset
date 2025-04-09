@@ -58,14 +58,18 @@ mapping_dict_regions = {
 }
 
 
-def transform_data(ti):
+def transform_data(**context):
     """
     Transform data pulled from XComs.
     """
     transformed_data = []
     # Pull data from extract tasks using XComs
-    olx_data = ti.xcom_pull(task_ids='extract_source_olx')  # Task ID for OLX
-    uybor_data = ti.xcom_pull(task_ids='extract_source_uybor')  # Task ID for Uybor
+    # olx_data = ti.xcom_pull(task_ids='extract_source_olx')  # Task ID for OLX
+    olx_data = context['task_instance'].xcom_pull(task_ids='extract_source_olx', key='extracted_data')
+
+    # uybor_data = ti.xcom_pull(task_ids='extract_source_uybor')  # Task ID for Uybor
+    uybor_data = context['task_instance'].xcom_pull(task_ids='extract_source_uybor', key='extracted_data')
+
     all_data = [
                    {**row, 'id': f"O{row['id']}"} for row in olx_data if 'id' in row
                ] + [
@@ -76,7 +80,7 @@ def transform_data(ti):
         return
     try:
         for index, row in enumerate(all_data):
-            print(row)
+            # print(row)
             if 'id' not in row:
                 print(f"❌ Error processing data: Missing 'id' in record {index + 1}")
                 continue
@@ -119,6 +123,9 @@ def transform_data(ti):
             row['repair_name'] = mapping_dict_repairs.get(row['repair_name'], row['repair_name'])
             row['region_name'] = mapping_dict_repairs.get(row['region_name'], row['region_name'])
             transformed_data.append(row)
-        return transformed_data
+
+        context['task_instance'].xcom_push(key='transformed_data', value=transformed_data)
+
+        return 'Data transformed successfully'
     except Exception as e:
         raise RuntimeError(f"❌ Error transforming data: {e}")
