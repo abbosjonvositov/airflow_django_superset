@@ -1,4 +1,4 @@
-FROM apache/airflow:latest
+FROM apache/airflow:2.10.5
 
 # Install Django and PostgreSQL dependencies using Airflow's recommended approach
 USER airflow

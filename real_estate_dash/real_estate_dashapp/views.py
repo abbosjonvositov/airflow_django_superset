@@ -46,6 +46,9 @@ class BaseView(TemplateView):
 
         return context
 
+class SuperSetView(TemplateView):
+    template_name = 'superset_dash.html'
+
 
 class ApartmentStatsView(APIView):
     def get(self, request):
@@ -315,7 +318,7 @@ class MonthlyAveragePriceAPIView(APIView):
         latest_year = latest_time.year
         latest_month = latest_time.month
 
-        # Get the last 5 months dynamically
+        # Get the last 6 months dynamically
         months_data = []
         for i in range(6):
             year, month = latest_year, latest_month - i
@@ -377,8 +380,8 @@ class MonthlyAveragePriceAPIView(APIView):
                     else:
                         avg_price = 0.0
 
-                    # Convert to "Month Year" format
-                    month_name = datetime(year, month, 1).strftime('%B %Y')
+                    # Convert to "YYYY-MM" format
+                    month_name = f"{year}-{month:02}"  # Ensures two-digit month
                     data.append([month_name, round(avg_price / 1_000_000, 2)])
 
                 if district_name in allowed_districts:
@@ -425,8 +428,8 @@ class MonthlyAveragePriceAPIView(APIView):
                     else:
                         avg_price = 0.0
 
-                    # Convert to "Month Year" format
-                    month_name = datetime(year, month, 1).strftime('%B %Y')
+                    # Convert to "YYYY-MM" format
+                    month_name = f"{year}-{month:02}"  # Ensures two-digit month
                     data.append([month_name, round(avg_price / 1_000_000, 2)])
 
                 if region_name in allowed_regions:

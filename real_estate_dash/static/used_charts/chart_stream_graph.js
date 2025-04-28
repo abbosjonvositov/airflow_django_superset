@@ -38,10 +38,11 @@ function fetchRenderStreamGraph(filters) {
                 'syrdarinskaya-oblast': 'Sirdarya',
                 'toshkent-oblast': 'Tashkent'
             };
+
             const seriesData = Object.keys(data).map(region => ({
                 name: regionMap[region] || region,
                 data: data[region].data.map(([month, value]) => ({
-                    x: new Date(month).getTime(),
+                    x: new Date(`${month}-01`).getTime(), // Ensure valid date format with "-01"
                     y: value
                 }))
             }));
@@ -62,7 +63,7 @@ function fetchRenderStreamGraph(filters) {
                         text: 'Time (Monthly)'
                     },
                     labels: {
-                        format: '{value:%b %Y}'
+                        format: '{value:%b %Y}' // Display month-year in tooltip
                     }
                 },
                 yAxis: {
