@@ -3,19 +3,20 @@ import os
 import pymysql
 import mysql.connector
 import sshtunnel
-
+import requests
 from django.utils.timezone import now
 from django.db.models import Max
 from real_estate_dashapp.models import DimTime
+from datetime import datetime
 from utils import XComDataWrapper
 
 # Set Django project path and settings
 sys.path.append("/opt/airflow/django_project")
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "real_estate_dash.settings")
-
-import django
-
-django.setup()
+#
+# import django
+#
+# django.setup()
 
 # SSH Configuration
 SSH_CONFIG = {
@@ -142,4 +143,8 @@ def extract_data(source, **context):
     except Exception as e:
         raise RuntimeError(f"❌ Error extracting {source} data: {e}")
 
+
 # print(extract_data('OLX'))
+
+
+# print(extract_exchange_rate())

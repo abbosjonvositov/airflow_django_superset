@@ -5,6 +5,7 @@ from real_estate_dashapp.models import (
     CityDim, DistrictDim, LatLonDim, DimLocation, DimNumeric,
     DimTime, FactApartments, RepairDim, RegionDim, ExchangeRateDim, ETLLog
 )
+import requests
 
 # Set Django project path and settings
 sys.path.append("/opt/airflow/django_project")
@@ -17,6 +18,21 @@ django.setup()
 from datetime import datetime
 import pytz
 from pprint import pprint
+
+
+def extract_exchange_rate():
+    try:
+        cbu_rate_url = 'https://cbu.uz/oz/arkhiv-kursov-valyut/json/'
+        response = requests.get(url=cbu_rate_url).json()[0]
+
+        date_str, rate = response['Date'], float(response['Rate'])
+
+        # Convert string to datetime object
+        date = datetime.strptime(date_str, '%d.%m.%Y')
+        print('✅ Exchange rate fetched')
+        return date, rate
+    except Exception as e:
+        raise RuntimeError(f"❌ Exchange rate: {e}")
 
 
 def add_timezone(dt):
@@ -34,7 +50,7 @@ def add_timezone(dt):
 def load_data(**context):
     # all_data = ti.xcom_pull(task_ids='transform_data')
     all_data = context['task_instance'].xcom_pull(task_ids='transform_data', key='transformed_data')
-
+    date, usd_uzs_rate = extract_exchange_rate()
     try:
         for index, row in enumerate(all_data):
             # Sync ORM methods
@@ -110,6 +126,15 @@ def load_data(**context):
                     'characteristic': characteristic
                 }
             )
+            try:
+                ExchangeRateDim.objects.using('default').create(
+                    datetime=add_timezone(date),
+                    usd_uzs_rate=usd_uzs_rate
+                )
+                print('✅ Exchange rate updated')
+            except Exception as e:
+                print(f'Error: {e}')
+
 
     except Exception as e:
         raise RuntimeError(f"❌ Error loading data: {e}")
