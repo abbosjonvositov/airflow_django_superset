@@ -43,12 +43,15 @@ class BaseView(TemplateView):
         context['option_floors'] = [i for i in range(1, 17)]
         context['option_type_of_market'] = DimCharacteristic.objects.values_list('type_of_market', flat=True).distinct()
         context['option_foundation'] = FoundationDim.objects.values_list('foundation_name', flat=True).distinct()
+        context['request'] = self.request
 
         return context
 
 class SuperSetView(TemplateView):
     template_name = 'superset_dash.html'
 
+class MLUIView(TemplateView):
+    template_name = 'ml_ui.html'
 
 class ApartmentStatsView(APIView):
     def get(self, request):

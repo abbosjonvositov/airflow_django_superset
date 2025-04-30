@@ -1,3 +1,7 @@
+<!DOCTYPE html>
+<html>
+{% include 'components_base/_header.html' %}
+<body>
 <iframe
         src="http://localhost:8088/superset/dashboard/p/QXPzjd3MavK/?standalone=true"
         width="100%"
@@ -5,19 +9,6 @@
         frameborder="0"
 ></iframe>
 
-<style>
-    .responsive-iframe-container {
-        position: relative;
-        width: 100%; /* Full width */
-        padding-top: 56.25%; /* 16:9 Aspect Ratio (divide height by width) */
-    }
 
-    .responsive-iframe-container iframe {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        border: 0;
-    }
-</style>
+</body>
+</html>

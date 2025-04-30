@@ -20,20 +20,12 @@
     <div class="menu-block customscroll">
         <div class="sidebar-menu">
             <div class="">
-                <div class="pd-20 pt-10 height-100-p d-flex flex-column align-items-start" style="margin-top: 50px;">
+                <div class="pd-20 pt-10 height-100-p d-flex flex-column align-items-start" style="margin-top: 20px;">
                     <!-- Filter Section -->
+                    {% if request.path == '/' %}
                     <div class="filter-section w-100">
                         <h5 class="text-visible pb-2">Filter Options</h5>
                         <form id="filter-form">
-                            <!-- Date Filters -->
-                            <div class="d-flex flex-column gap-2 mt-2">
-                                <label class="text-visible" for="from-date">From Date</label>
-                                <input type="date" id="from-date" name="from_date" class="form-control mb-2">
-
-                                <label class="text-visible mt-3" for="to-date">To Date</label>
-                                <input type="date" id="to-date" name="to_date" class="form-control mb-3">
-                            </div>
-
                             <!-- Filter Option 1 -->
                             <div class="form-group">
                                 <label class="text-visible" for="dropdown1">Number of rooms</label>
@@ -78,21 +70,34 @@
                                 </select>
                             </div>
 
-                         <!--   <div class="form-group">
-                                <label class="text-visible" for="dropdown5">Type of market</label>
-                                <select class="form-control filter" id="dropdown5" name="data_type">
-                                    <option value="" disabled selected>Select type of market</option>
-                                    <option value="district">District</option>
-                                    <option value="">Region</option>
-                                </select>
-                            </div>-->
+                            <!--   <div class="form-group">
+                                   <label class="text-visible" for="dropdown5">Type of market</label>
+                                   <select class="form-control filter" id="dropdown5" name="data_type">
+                                       <option value="" disabled selected>Select type of market</option>
+                                       <option value="district">District</option>
+                                       <option value="">Region</option>
+                                   </select>
+                               </div>-->
 
                             <!-- Reset Button -->
                             <button class="btn btn-danger w-100 mt-3 text-visible" id="reset-button" type="button">Reset
                                 Filters
                             </button>
+                            <div class="mt-4">
+                                <a href="{% url 'superset_view' %}" target="_blank">
+                                    <button class="btn btn-success w-100 mt-3 text-visible" type="button">
+                                        Detailed Dashboards
+                                    </button>
+                                </a>
+                                <a href="{% url 'ml_ui_view' %}" target="_blank">
+                                    <button class="btn btn-primary w-100 mt-3 text-visible" type="button">House price
+                                        prediction
+                                    </button>
+                            </div>
+                            </a>
                         </form>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
