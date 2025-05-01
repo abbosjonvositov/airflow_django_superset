@@ -58,7 +58,7 @@
             <!-- Region by Stat -->
             <div class="col-lg-4 col-md-12 col-sm-12 mb-30">
                 <div class="card-box pd-10"
-                     style="display: flex; align-items: center; justify-content: center; position: relative; height:680px">
+                     style="display: flex; align-items: center; justify-content: center; position: relative; height:750px">
 
                     <!-- Loading Animation -->
                     <div class="loading-animation" id="loading-region-by-stat"
@@ -142,6 +142,15 @@
                         </div>
 
                         <div class="form-group">
+                            <select class="form-control filter" id="repair_name_dropdown" name="repair_name">
+                                <option value="" disabled selected>Repair name</option>
+                                {% for repair in repair_name %}
+                                <option value="{{ repair }}">{{ repair }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
                             <select class="form-control filter" id="year_month_dropdown" name="year_month">
                                 <option value="" disabled selected>Prediction term</option>
                                 {% for year in year_month %}
@@ -204,6 +213,7 @@
         formData.append('foundation_name', document.getElementById('foundation_name_dropdown').value);
         formData.append('layout_name', document.getElementById('layout_name_dropdown').value);
         formData.append('wc_name', document.getElementById('wc_name_dropdown').value);
+        formData.append('repair_name', document.getElementById('repair_name_dropdown').value);
         formData.append('year_month', document.getElementById('year_month_dropdown').value);
 
         // Send the POST request

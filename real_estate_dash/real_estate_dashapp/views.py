@@ -69,7 +69,8 @@ class IndividualPredictionView(TemplateView):
         foundation_name = ['Кирпичный', 'Панельный', 'Монолитный', 'Блочный', 'Деревянный']
         wc_name = ['Совмещенный', 'Раздельный', '2 санузла и более']
         year_month = ['2024-11', '2024-12', '2025-01', '2025-02', '2025-03', '2025-04']
-
+        repair_name = ['Авторский проект', 'Евроремонт', 'Черновая отделка',
+                       'Требует ремонта', 'Предчистовая отделка', 'Средний']
         context = super().get_context_data(**kwargs)
         context['districts'] = districts
         context['number_of_rooms'] = [i for i in range(1, 8)]
@@ -79,6 +80,7 @@ class IndividualPredictionView(TemplateView):
         context['layout_name'] = layout_name
         context['wc_name'] = wc_name
         context['year_month'] = year_month
+        context['repair_name'] = repair_name
 
         return context
 
@@ -97,6 +99,7 @@ def individual_prediction_features(request):
             'foundation_name': request.POST.get('foundation_name'),
             'layout_name': request.POST.get('layout_name'),
             'wc_name': request.POST.get('wc_name'),
+            'repair_name': request.POST.get('repair_name'),
             'year_month': request.POST.get('year_month'),
         }
         with open('response.json', 'w', encoding='utf-8-sig') as f:
