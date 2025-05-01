@@ -93,13 +93,34 @@
                                     <button class="btn btn-primary w-100 mt-3 text-visible" type="button">House price
                                         prediction
                                     </button>
+                                </a>
                             </div>
-                            </a>
                         </form>
                     </div>
                     {% endif %}
+
                 </div>
             </div>
+            <ul id="accordion-menu">
+                <li class="dropdown">
+                    <a href="javascript:;" class="dropdown-toggle">
+                        <span class="micon dw dw-share-1"></span><span
+                            class="mtext">Individual prediction</span>
+                    </a>
+                    <ul class="submenu">
+                        <li><a href="{% url 'individual_prediction_view' %}">Individual prediction</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="javascript:;" class="dropdown-toggle">
+                        <span class="micon dw dw-flow"></span><span
+                            class="mtext">Prediction in bulk</span>
+                    </a>
+                    <ul class="submenu">
+                        <li><a href="{% url 'prediction_in_bulk_view' %}">Prediction in bulk</a></li>
+                    </ul>
+                </li>
+            </ul>
         </div>
     </div>
 </div>

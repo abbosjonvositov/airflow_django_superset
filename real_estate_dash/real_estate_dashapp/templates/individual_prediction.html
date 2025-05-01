@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+{% block main %}
+{% load static %}
+<style>
+    .number-box {
+        text-align: center;
+        padding: 30px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+
+    .number {
+        font-size: 3em;
+        color: #1b00ff;
+    }
+
+    .description {
+        font-size: 1.2em;
+        color: #666;
+    }
+</style>
+<style>
+    .form-group, .form-control, .filter {
+        width: 100%;
+    }
+    .filter input[type="date"] {
+        width: calc(50% - 5px);
+    }
+    .filter select {
+        width: 100%;
+    }
+</style>
+<style>
+    .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 10px 20px;
+        border-radius: 5px;
+        color: white;
+        font-size: 16px;
+        z-index: 1000;
+        opacity: 0.9;
+        transition: opacity 0.3s ease;
+    }
+    .notification.success {
+        background-color: green;
+    }
+    .notification.error {
+        background-color: red;
+    }
+</style>
+
+<div class="main-container">
+    <div class="xs-pd-20-10 pd-ltr-20">
+        <div class="row">
+            <!-- Region by Stat -->
+            <div class="col-lg-4 col-md-12 col-sm-12 mb-30">
+                <div class="card-box pd-10"
+                     style="display: flex; align-items: center; justify-content: center; position: relative; height:680px">
+
+                    <!-- Loading Animation -->
+                    <div class="loading-animation" id="loading-region-by-stat"
+                         style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;">
+                        <video autoplay loop muted>
+                            <source src="{% static 'loading_animations/animation_4.webm' %}" type="video/webm">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+
+                    <!-- Chart Container -->
+                    <form>
+                        <!-- District name -->
+                        <div class="form-group">
+                            <select class="form-control filter" id="district_name_dropdown" name="district_name">
+                                <option value="" disabled selected>District name</option>
+                                {% for district in districts %}
+                                <option value="{{ district }}">{{ district }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <!-- Number of rooms -->
+                        <div class="form-group">
+                            <select class="form-control filter" id="number_of_rooms_dropdown" name="number_of_rooms">
+                                <option value="" disabled selected>Number of rooms</option>
+                                {% for room in number_of_rooms %}
+                                <option value="{{ room }}">{{ room }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <select class="form-control filter" id="floors_dropdown" name="floors">
+                                <option value="" disabled selected>Floors</option>
+                                {% for floor in floors %}
+                                <option value="{{ floor }}">{{ floor }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <select class="form-control filter" id="total_floors_dropdown" name="total_floors">
+                                <option value="" disabled selected>Total floors</option>
+                                {% for total_floor in total_floors %}
+                                <option value="{{ total_floor }}">{{ total_floor }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="number" class="form-control filter" id="total_area_input" name="total_area"
+                                   placeholder="Enter total area (in m²)" max="200">
+                        </div>
+
+
+                        <div class="form-group">
+                            <select class="form-control filter" id="foundation_name_dropdown" name="foundation_name">
+                                <option value="" disabled selected>Foundation name</option>
+                                {% for foundation in foundation_name %}
+                                <option value="{{ foundation }}">{{ foundation }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <select class="form-control filter" id="layout_name_dropdown" name="layout_name">
+                                <option value="" disabled selected>Layout name</option>
+                                {% for layout in layout_name %}
+                                <option value="{{ layout }}">{{ layout }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <select class="form-control filter" id="wc_name_dropdown" name="wc_name">
+                                <option value="" disabled selected>WC name</option>
+                                {% for wc in wc_name %}
+                                <option value="{{ wc }}">{{ wc }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <select class="form-control filter" id="year_month_dropdown" name="year_month">
+                                <option value="" disabled selected>Prediction term</option>
+                                {% for year in year_month %}
+                                <option value="{{ year }}">{{ year }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        {% csrf_token %}
+                        <!-- Reset Button -->
+                        <button class="btn btn-secondary w-100 mt-3 text-visible" id="submit-button" type="button"
+                                disabled>Submit
+                        </button>
+
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-12 col-sm-12 mb-30">
+                <div class="card-box pd-10 height-100-p"
+                     style="position: relative; display: flex; align-items: center; justify-content: center;">
+
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-12 col-sm-12 mb-30">
+                <div class="card-box pd-10 height-100-p"
+                     style="position: relative; display: flex; align-items: center; justify-content: center;">
+
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('submit-button').addEventListener('click', function(event) {
+        // Show the loading animation (if applicable)
+        document.getElementById('loading-region-by-stat').style.display = 'block';
+
+        // Collect form data
+        const totalAreaInput = document.getElementById('total_area_input');
+        const formData = new FormData();
+
+        // Validate total area before submission
+        if (totalAreaInput.value > 200 || totalAreaInput.value === '') {
+            document.getElementById('loading-region-by-stat').style.display = 'none';
+            showNotification('Total area must be between 1 and 200 m².', 'error');
+            event.preventDefault(); // Prevent form submission
+            return; // Exit the function
+        }
+
+        // Append form data
+        formData.append('district_name', document.getElementById('district_name_dropdown').value);
+        formData.append('number_of_rooms', document.getElementById('number_of_rooms_dropdown').value);
+        formData.append('floors', document.getElementById('floors_dropdown').value);
+        formData.append('total_floors', document.getElementById('total_floors_dropdown').value);
+        formData.append('total_area', totalAreaInput.value);
+        formData.append('foundation_name', document.getElementById('foundation_name_dropdown').value);
+        formData.append('layout_name', document.getElementById('layout_name_dropdown').value);
+        formData.append('wc_name', document.getElementById('wc_name_dropdown').value);
+        formData.append('year_month', document.getElementById('year_month_dropdown').value);
+
+        // Send the POST request
+        fetch('{% url "individual_prediction_features" %}', { // Replace with your actual Django view URL
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value // Include CSRF token
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Hide the loading animation
+            document.getElementById('loading-region-by-stat').style.display = 'none';
+
+            if (data.success) {
+                // Handle success with in-app green notification
+                console.log('Form submitted successfully:', data);
+                showNotification('Form submitted successfully!', 'success');
+            } else {
+                // Handle errors
+                console.error('Form submission failed:', data.errors);
+                showNotification('Error submitting form. Please check the fields.', 'error');
+            }
+        })
+        .catch(error => {
+            // Hide the loading animation
+            document.getElementById('loading-region-by-stat').style.display = 'none';
+
+            // Handle request error
+            console.error('Error:', error);
+            showNotification('Something went wrong!', 'error');
+        });
+    });
+
+    // Function to show in-app notification
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`; // Add class based on type ('success' or 'error')
+        notification.innerText = message;
+
+        // Append notification to the body or a specific container
+        document.body.appendChild(notification);
+
+        // Automatically remove notification after 3 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const submitButton = document.getElementById('submit-button');
+        const formFields = document.querySelectorAll('.filter');
+
+        // Function to check if all fields are filled
+        function checkFields() {
+            let allFilled = true;
+            formFields.forEach(field => {
+                if ((field.tagName === 'SELECT' && field.value === "") || (field.tagName === 'INPUT' && !field.value)) {
+                    allFilled = false;
+                }
+            });
+
+            // Update button color and state
+            if (allFilled) {
+                submitButton.classList.remove('btn-secondary');
+                submitButton.classList.add('btn-success');
+                submitButton.disabled = false;
+            } else {
+                submitButton.classList.remove('btn-success');
+                submitButton.classList.add('btn-secondary');
+                submitButton.disabled = true;
+            }
+        }
+
+        // Add event listeners to form fields
+        formFields.forEach(field => {
+            field.addEventListener('change', checkFields);
+            field.addEventListener('input', checkFields);
+        });
+
+        // Initial state
+        checkFields();
+    });
+</script>
+
+<!-- Updated Submit Button -->
+
+{% endblock %}

@@ -13,8 +13,9 @@ from collections import defaultdict
 from django.utils.timezone import now
 import numpy as np
 import json
-from django.http import JsonResponse
 from django.conf import settings
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 tashkent_district_filter_map = {
     "Almazar": "Алмазарский район",
@@ -47,11 +48,72 @@ class BaseView(TemplateView):
 
         return context
 
+
 class SuperSetView(TemplateView):
     template_name = 'superset_dash.html'
 
+
+class IndividualPredictionView(TemplateView):
+    template_name = 'individual_prediction.html'
+
+    def get_context_data(self, **kwargs):
+        districts = [
+            'Чиланзарский район', 'Юнусабадский район', 'Янгихаётский район',
+            'Яккасарайский район', 'Шайхантахурский район',
+            'Мирабадский район', 'Учтепинский район', 'Яшнабадский район',
+            'Бектемирский район', 'Сергелийский район',
+            'Мирзо-Улугбекский район', 'Алмазарский район', 'Новый Ташкентский район'
+        ]
+        layout_name = ['Раздельная', 'Смежно-раздельная', 'Смежная', 'Многоуровневая',
+                       'Малосемейка', 'Студия', 'Пентхаус']
+        foundation_name = ['Кирпичный', 'Панельный', 'Монолитный', 'Блочный', 'Деревянный']
+        wc_name = ['Совмещенный', 'Раздельный', '2 санузла и более']
+        year_month = ['2024-11', '2024-12', '2025-01', '2025-02', '2025-03', '2025-04']
+
+        context = super().get_context_data(**kwargs)
+        context['districts'] = districts
+        context['number_of_rooms'] = [i for i in range(1, 8)]
+        context['floors'] = [i for i in range(1, 17)]
+        context['total_floors'] = [i for i in range(1, 17)]
+        context['foundation_name'] = foundation_name
+        context['layout_name'] = layout_name
+        context['wc_name'] = wc_name
+        context['year_month'] = year_month
+
+        return context
+
+
+@csrf_exempt
+def individual_prediction_features(request):
+    print('WORKED', request)
+    if request.method == 'POST':
+        # Extract form data from the request
+        data = {
+            'district_name': request.POST.get('district_name'),
+            'number_of_rooms': request.POST.get('number_of_rooms'),
+            'floors': request.POST.get('floors'),
+            'total_floors': request.POST.get('total_floors'),
+            'total_area': request.POST.get('total_area'),
+            'foundation_name': request.POST.get('foundation_name'),
+            'layout_name': request.POST.get('layout_name'),
+            'wc_name': request.POST.get('wc_name'),
+            'year_month': request.POST.get('year_month'),
+        }
+        with open('response.json', 'w', encoding='utf-8-sig') as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+        # Return a simple success message
+        return JsonResponse({'success': True, 'data': data})
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
+
 class MLUIView(TemplateView):
     template_name = 'ml_ui.html'
+
+
+class PredictionBulkView(TemplateView):
+    template_name = 'prediction_in_bulk.html'
+
 
 class ApartmentStatsView(APIView):
     def get(self, request):
