@@ -53,14 +53,12 @@
 </style>
 
 <div class="main-container">
-    <div class="xs-pd-20-10 pd-ltr-20">
+    <div class="">
         <div class="row">
-            <!-- Region by Stat -->
-            <div class="col-lg-4 col-md-12 col-sm-12 mb-30">
+            <!-- Feature selection card -->
+            <div class="col-lg-3 col-md-12 col-sm-12 mb-30">
                 <div class="card-box pd-10"
-                     style="display: flex; align-items: center; justify-content: center; position: relative; height:680px">
-
-                    <!-- Loading Animation -->
+                     style="display: flex; align-items: center; justify-content: center; position: relative; height:820px">
                     <div class="loading-animation" id="loading-region-by-stat"
                          style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;">
                         <video autoplay loop muted>
@@ -68,10 +66,7 @@
                             Your browser does not support the video tag.
                         </video>
                     </div>
-
-                    <!-- Chart Container -->
                     <form>
-                        <!-- District name -->
                         <div class="form-group">
                             <select class="form-control filter" id="district_name_dropdown" name="district_name">
                                 <option value="" disabled selected>District name</option>
@@ -80,7 +75,6 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <!-- Number of rooms -->
                         <div class="form-group">
                             <select class="form-control filter" id="number_of_rooms_dropdown" name="number_of_rooms">
                                 <option value="" disabled selected>Number of rooms</option>
@@ -89,7 +83,6 @@
                                 {% endfor %}
                             </select>
                         </div>
-
                         <div class="form-group">
                             <select class="form-control filter" id="floors_dropdown" name="floors">
                                 <option value="" disabled selected>Floors</option>
@@ -98,7 +91,6 @@
                                 {% endfor %}
                             </select>
                         </div>
-
                         <div class="form-group">
                             <select class="form-control filter" id="total_floors_dropdown" name="total_floors">
                                 <option value="" disabled selected>Total floors</option>
@@ -107,13 +99,10 @@
                                 {% endfor %}
                             </select>
                         </div>
-
                         <div class="form-group">
                             <input type="number" class="form-control filter" id="total_area_input" name="total_area"
                                    placeholder="Enter total area (in m²)" max="200">
                         </div>
-
-
                         <div class="form-group">
                             <select class="form-control filter" id="foundation_name_dropdown" name="foundation_name">
                                 <option value="" disabled selected>Foundation name</option>
@@ -122,7 +111,6 @@
                                 {% endfor %}
                             </select>
                         </div>
-
                         <div class="form-group">
                             <select class="form-control filter" id="layout_name_dropdown" name="layout_name">
                                 <option value="" disabled selected>Layout name</option>
@@ -131,7 +119,6 @@
                                 {% endfor %}
                             </select>
                         </div>
-
                         <div class="form-group">
                             <select class="form-control filter" id="wc_name_dropdown" name="wc_name">
                                 <option value="" disabled selected>WC name</option>
@@ -140,7 +127,22 @@
                                 {% endfor %}
                             </select>
                         </div>
-
+                        <div class="form-group">
+                            <select class="form-control filter" id="repair_name_dropdown" name="repair_name">
+                                <option value="" disabled selected>Repair name</option>
+                                {% for repair in repair_name %}
+                                <option value="{{ repair }}">{{ repair }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select class="form-control filter" id="is_primary_dropdown" name="is_primary">
+                                <option value="" disabled selected>Primary market</option>
+                                {% for key, value in type_of_market.items %}
+                                <option value="{{ value }}">{{ key }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                         <div class="form-group">
                             <select class="form-control filter" id="year_month_dropdown" name="year_month">
                                 <option value="" disabled selected>Prediction term</option>
@@ -149,53 +151,148 @@
                                 {% endfor %}
                             </select>
                         </div>
-
                         {% csrf_token %}
-                        <!-- Reset Button -->
                         <button class="btn btn-secondary w-100 mt-3 text-visible" id="submit-button" type="button"
                                 disabled>Submit
                         </button>
-
                     </form>
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-12 col-sm-12 mb-30">
-                <div class="card-box pd-10 height-100-p"
-                     style="position: relative; display: flex; align-items: center; justify-content: center;">
+            <!-- Three small cards in one row -->
+            <div class="col-lg-9">
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-30">
+                        <div class="card-box pd-30 height-100-p">
+                            <div class="progress-box text-center" style="margin-top: 10px">
+                                <div class="number" id="lower_bound" style="color: #1b00ff; font-size: 30px">0</div>
+                                <h5 class="text-blue padding-top-10 h5">Lower bound</h5>
+                                <span class="d-block"><b>- <span class="stander-dev"></span> (-2 * Std)</b></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-30">
+                        <div class="card-box pd-30 height-100-p">
+                            <div class="progress-box text-center" style="margin-top: 10px">
+                                <div class="number" id="prediction" style="color: #1b00ff; font-size: 40px">0</div>
+                                <h5 class="text-blue padding-top-10 h5">Predicted price</h5>
+                                <span class="d-block">USD <i class="fa fa-money text-blue"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-30">
+                        <div class="card-box pd-30 height-100-p">
+                            <div class="progress-box text-center" style="margin-top: 10px">
+                                <div class="number" id="upper_bound" style="color: #1b00ff; font-size: 30px">0</div>
+                                <h5 class="text-blue padding-top-10 h5">Upper bound</h5>
+                                <span class="d-block"><b>+ <span class="stander-dev"></span> (+2 * Std)</b></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- Large card below the three small cards -->
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 mb-30">
+                        <div class="card-box pd-30 height-100-p">
+                            <!-- Large card content -->
+                            <div id="histogram_chart">
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-12 col-sm-12 mb-30">
-                <div class="card-box pd-10 height-100-p"
-                     style="position: relative; display: flex; align-items: center; justify-content: center;">
-
-                </div>
-            </div>
-
-
         </div>
     </div>
 </div>
+<!--<script src="https://code.highcharts.com/highcharts.js"></script>-->
+<!--<script src="https://code.highcharts.com/modules/histogram-bellcurve.js"></script>-->
 
 <script>
+    async function renderHistogram() {
+        try {
+            const response = await fetch('/individual_prediction_features/');
+            const data = await response.json();
+
+            const counts = data.histogram.counts;
+            const binEdges = data.histogram.bin_edges.map(edge => Math.round(edge)); // Rounded for better display
+
+            Highcharts.chart('histogram_chart', {
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: 'Histogram Chart'
+                },
+                xAxis: {
+                    categories: binEdges,
+                    title: {
+                        text: 'Bin Edges'
+                    },
+                    labels: {
+                        formatter: function() {
+                            return new Intl.NumberFormat('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }).format(this.value);
+                        }
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: 'Counts'
+                    }
+                },
+                series: [{
+                    name: 'Frequency',
+                    data: counts,
+                    color: '#007bff'
+                }]
+            });
+        } catch (error) {
+            console.error('Error fetching histogram data:', error);
+        }
+    }
+    renderHistogram();
+</script>
+
+<script>
+    function animateNumber(id, start, end, duration) {
+        const element = document.getElementById(id);
+        if (!element) return;
+
+        let startTime = null;
+
+        const step = (timestamp) => {
+            if (!startTime) startTime = timestamp;
+            const progress = Math.min((timestamp - startTime) / duration, 1);
+            let formattedValue = (progress * (end - start) + start).toFixed(2);
+
+            element.textContent = Number(formattedValue).toLocaleString('en-US', { minimumFractionDigits: 2 });
+            element.style.fontSize = "40px";
+
+            if (progress < 1) {
+                requestAnimationFrame(step);
+            }
+        };
+
+        requestAnimationFrame(step);
+    }
+
     document.getElementById('submit-button').addEventListener('click', function(event) {
-        // Show the loading animation (if applicable)
+
         document.getElementById('loading-region-by-stat').style.display = 'block';
 
-        // Collect form data
         const totalAreaInput = document.getElementById('total_area_input');
-        const formData = new FormData();
-
-        // Validate total area before submission
         if (totalAreaInput.value > 200 || totalAreaInput.value === '') {
             document.getElementById('loading-region-by-stat').style.display = 'none';
             showNotification('Total area must be between 1 and 200 m².', 'error');
-            event.preventDefault(); // Prevent form submission
-            return; // Exit the function
+            event.preventDefault();
+            return;
         }
 
-        // Append form data
+        const formData = new FormData();
         formData.append('district_name', document.getElementById('district_name_dropdown').value);
         formData.append('number_of_rooms', document.getElementById('number_of_rooms_dropdown').value);
         formData.append('floors', document.getElementById('floors_dropdown').value);
@@ -204,57 +301,77 @@
         formData.append('foundation_name', document.getElementById('foundation_name_dropdown').value);
         formData.append('layout_name', document.getElementById('layout_name_dropdown').value);
         formData.append('wc_name', document.getElementById('wc_name_dropdown').value);
+        formData.append('repair_name', document.getElementById('repair_name_dropdown').value);
+        formData.append('is_primary', document.getElementById('is_primary_dropdown').value);
         formData.append('year_month', document.getElementById('year_month_dropdown').value);
 
-        // Send the POST request
-        fetch('{% url "individual_prediction_features" %}', { // Replace with your actual Django view URL
+        // First, store the features with a POST request
+        fetch('/individual_prediction_features/', {
             method: 'POST',
             body: formData,
             headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value // Include CSRF token
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
             }
         })
         .then(response => response.json())
-        .then(data => {
-            // Hide the loading animation
-            document.getElementById('loading-region-by-stat').style.display = 'none';
+        .then(postData => {
+            if (postData.success) {
+                console.log('Features cached successfully.');
 
-            if (data.success) {
-                // Handle success with in-app green notification
-                console.log('Form submitted successfully:', data);
-                showNotification('Form submitted successfully!', 'success');
+                // Now, make a GET request to retrieve prediction data
+                fetch('/individual_prediction_features/', {
+                    method: 'GET'
+                })
+                .then(response => response.json())
+                .then(getData => {
+                    document.getElementById('loading-region-by-stat').style.display = 'none';
+
+                    if (getData.success) {
+                        console.log('Prediction received:', getData);
+                        showNotification('Prediction successfully retrieved!', 'success');
+
+                        animateNumber('prediction', 0, getData.prediction, 1500);
+                        animateNumber('upper_bound', 0, getData.upper_bound, 1500);
+                        animateNumber('lower_bound', 0, getData.lower_bound, 1500);
+
+                        Array.from(document.getElementsByClassName('stander-dev')).forEach(element => {
+                            element.textContent = (2 * getData.std_dev).toLocaleString('en-US', { minimumFractionDigits: 2 });
+                        });
+                    } else {
+                        console.error('Prediction retrieval failed:', getData.message);
+                        showNotification('Error retrieving prediction.', 'error');
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('loading-region-by-stat').style.display = 'none';
+                    console.error('Error fetching prediction:', error);
+                    showNotification('Something went wrong retrieving the prediction!', 'error');
+                });
+
             } else {
-                // Handle errors
-                console.error('Form submission failed:', data.errors);
-                showNotification('Error submitting form. Please check the fields.', 'error');
+                console.error('Feature caching failed:', postData.message);
+                showNotification('Error storing features. Please check input fields.', 'error');
             }
         })
         .catch(error => {
-            // Hide the loading animation
             document.getElementById('loading-region-by-stat').style.display = 'none';
-
-            // Handle request error
-            console.error('Error:', error);
-            showNotification('Something went wrong!', 'error');
+            console.error('Error caching features:', error);
+            showNotification('Something went wrong saving features!', 'error');
         });
+        renderHistogram();
     });
 
-    // Function to show in-app notification
     function showNotification(message, type) {
         const notification = document.createElement('div');
-        notification.className = `notification ${type}`; // Add class based on type ('success' or 'error')
+        notification.className = `notification ${type}`;
         notification.innerText = message;
-
-        // Append notification to the body or a specific container
         document.body.appendChild(notification);
 
-        // Automatically remove notification after 3 seconds
         setTimeout(() => {
             notification.remove();
         }, 3000);
     }
 </script>
-
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const submitButton = document.getElementById('submit-button');

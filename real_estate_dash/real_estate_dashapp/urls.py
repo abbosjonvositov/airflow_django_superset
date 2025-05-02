@@ -6,7 +6,7 @@ urlpatterns = [
     path('superset_dash', SuperSetView.as_view(), name='superset_view'),
     path('ml_ui', MLUIView.as_view(), name='ml_ui_view'),
     path('individual_prediction', IndividualPredictionView.as_view(), name='individual_prediction_view'),
-    path('individual_prediction_features', individual_prediction_features,
+    path('individual_prediction_features/', IndividualPredictionAPI.as_view(),
          name='individual_prediction_features'),
     path('prediction_in_bulk', PredictionBulkView.as_view(), name='prediction_in_bulk_view'),
     path('api/apartment-stats/', ApartmentStatsView.as_view(), name='apartment-stats'),

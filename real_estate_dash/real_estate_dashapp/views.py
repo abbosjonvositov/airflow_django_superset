@@ -16,6 +16,15 @@ import json
 from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+# from .utils import rf_model_prediction
+from django.http import JsonResponse
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.core.cache import cache
+
+
+
 
 tashkent_district_filter_map = {
     "Almazar": "Алмазарский район",
@@ -69,6 +78,12 @@ class IndividualPredictionView(TemplateView):
         foundation_name = ['Кирпичный', 'Панельный', 'Монолитный', 'Блочный', 'Деревянный']
         wc_name = ['Совмещенный', 'Раздельный', '2 санузла и более']
         year_month = ['2024-11', '2024-12', '2025-01', '2025-02', '2025-03', '2025-04']
+        repair_name = ['Авторский проект', 'Евроремонт', 'Черновая отделка',
+                       'Требует ремонта', 'Предчистовая отделка', 'Средний']
+        type_of_market = {
+            'yes': 1,
+            'no': 0
+        }
 
         context = super().get_context_data(**kwargs)
         context['districts'] = districts
@@ -79,32 +94,58 @@ class IndividualPredictionView(TemplateView):
         context['layout_name'] = layout_name
         context['wc_name'] = wc_name
         context['year_month'] = year_month
+        context['repair_name'] = repair_name
+        context['type_of_market'] = type_of_market
 
         return context
 
 
-@csrf_exempt
-def individual_prediction_features(request):
-    print('WORKED', request)
-    if request.method == 'POST':
-        # Extract form data from the request
-        data = {
-            'district_name': request.POST.get('district_name'),
-            'number_of_rooms': request.POST.get('number_of_rooms'),
-            'floors': request.POST.get('floors'),
-            'total_floors': request.POST.get('total_floors'),
-            'total_area': request.POST.get('total_area'),
-            'foundation_name': request.POST.get('foundation_name'),
-            'layout_name': request.POST.get('layout_name'),
-            'wc_name': request.POST.get('wc_name'),
-            'year_month': request.POST.get('year_month'),
-        }
-        with open('response.json', 'w', encoding='utf-8-sig') as f:
-            json.dump(data, f, indent=4, ensure_ascii=False)
-        # Return a simple success message
-        return JsonResponse({'success': True, 'data': data})
 
-    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
+class IndividualPredictionAPI(APIView):
+    def post(self, request):
+        """Receives form data and caches it for later model predictions."""
+
+        data = {
+            'district_name': request.data.get('district_name'),
+            'number_of_rooms': request.data.get('number_of_rooms'),
+            'floors': request.data.get('floors'),
+            'total_floors': request.data.get('total_floors'),
+            'total_area': request.data.get('total_area'),
+            'foundation_name': request.data.get('foundation_name'),
+            'layout_name': request.data.get('layout_name'),
+            'wc_name': request.data.get('wc_name'),
+            'repair_name': request.data.get('repair_name'),
+            'year_month': request.data.get('year_month'),
+            'is_primary': request.data.get('is_primary')
+        }
+
+        # Cache data with a timeout (e.g., 5 minutes)
+        cache.set('prediction_features', data, timeout=300)
+
+        return Response({"success": True, "message": "Features cached successfully."}, status=status.HTTP_200_OK)
+
+    def get(self, request):
+        """Retrieves cached features, applies the model, and returns the prediction."""
+
+        data = cache.get('prediction_features')
+        if not data:
+            return Response({"success": False, "message": "No cached data found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Apply model prediction using cached data
+        results = ''#rf_model_prediction([data])
+
+        response_data = {
+            'success': True,
+            'data': data,
+            'prediction': float(round(results['prediction'], 2)),
+            'upper_bound': results['upper_bound'],
+            'lower_bound': results['lower_bound'],
+            'std_dev': results['std_dev'],
+            'histogram': results['histogram']
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 class MLUIView(TemplateView):

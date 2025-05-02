@@ -23,3 +23,5 @@ tzdata==2025.2
 requests
 openpyxl
 xlrd
+joblib
+scikit-learn

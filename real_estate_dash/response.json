@@ -1,11 +1,13 @@
 ﻿{
     "district_name": "Чиланзарский район",
-    "number_of_rooms": "1",
-    "floors": "5",
-    "total_floors": "3",
-    "total_area": "4",
-    "foundation_name": "Кирпичный",
+    "number_of_rooms": "2",
+    "floors": "4",
+    "total_floors": "4",
+    "total_area": "20",
+    "foundation_name": "Панельный",
     "layout_name": "Смежно-раздельная",
-    "wc_name": "Совмещенный",
-    "year_month": "2024-11"
+    "wc_name": "2 санузла и более",
+    "repair_name": "Евроремонт",
+    "year_month": "2024-11",
+    "is_primary": "1"
 }

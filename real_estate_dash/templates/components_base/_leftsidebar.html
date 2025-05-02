@@ -101,6 +101,7 @@
 
                 </div>
             </div>
+            {% if request.path != '/' %}
             <ul id="accordion-menu">
                 <li class="dropdown">
                     <a href="javascript:;" class="dropdown-toggle">
@@ -121,6 +122,8 @@
                     </ul>
                 </li>
             </ul>
+            {% endif %}
+
         </div>
     </div>
 </div>
