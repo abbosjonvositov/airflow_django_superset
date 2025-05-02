@@ -1,0 +1,434 @@
+{% extends 'base.html' %}
+{% block main %}
+{% load static %}
+<style>
+    .number-box {
+        text-align: center;
+        padding: 30px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+
+    .number {
+        font-size: 3em;
+        color: #1b00ff;
+    }
+
+    .description {
+        font-size: 1.2em;
+        color: #666;
+    }
+</style>
+<style>
+    .form-group, .form-control, .filter {
+        width: 100%;
+    }
+    .filter input[type="date"] {
+        width: calc(50% - 5px);
+    }
+    .filter select {
+        width: 100%;
+    }
+</style>
+
+<div class="main-container">
+    <!-- Loading Animation -->
+
+
+    <div class="xs-pd-20-10 pd-ltr-20">
+
+        <!--        METRICS -->
+        <div class="row clearfix progress-box">
+            <div class="col-lg-3 col-md-6 col-sm-12 mb-30">
+                <div class="card-box pd-30 height-100-p">
+                    <div class="progress-box text-center">
+                        <div class="number" id="price_per_sqm" style="color: #1b00ff;">0</div>
+                        <h5 class="text-blue padding-top-10 h5">Price per m<sup>2</sup></h5>
+                        <span class="d-block">in million UZS <i class="fa fa-money text-blue"></i></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-12 mb-30">
+                <div class="card-box pd-30 height-100-p">
+                    <div class="progress-box text-center">
+                        <div class="number" id="avg_price" style="color: #00e091;">0</div>
+                        <h5 class="text-light-green padding-top-10 h5">Average price</h5>
+                        <span class="d-block">in million UZS <i class="fa text-light-green fa-money"></i></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-12 mb-30">
+                <div class="card-box pd-30 height-100-p">
+                    <div class="progress-box text-center">
+                        <div class="number" id="price_per_sqm_usd" style="color: #f56767;">0</div>
+                        <h5 class="text-light-orange padding-top-10 h5">Price per m<sup>2</sup></h5>
+                        <span class="d-block">in thousand USD <i class="fa text-light-orange fa-dollar"></i></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-12 mb-30">
+                <div class="card-box pd-30 height-100-p">
+                    <div class="progress-box text-center">
+                        <div class="number" id="avg_price_usd" style="color: #a683eb;">0</div>
+                        <h5 class="text-light-purple padding-top-10 h5">Average price</h5>
+                        <span class="d-block">in thousand USD <i class="fa text-light-purple fa-dollar"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--        METRICS -->
+
+
+        <!--        MAP & FEATURE FILTERS -->
+        <div class="row">
+
+            <!--            MAP-->
+            <div class="col-lg-4 col-md-6 col-sm-12 mb-30">
+                <div class="card-box pd-10 pt-10 height-100-p">
+                    <div id="container" style="width: 100%; height: 600px; position: relative;">
+                    </div>
+                </div>
+            </div>
+            <!-- Region by Stat -->
+            <div class="col-lg-4 col-md-12 col-sm-12 mb-30">
+                <div class="card-box pd-10 height-100-p"
+                     style="display: flex; align-items: center; justify-content: center; position: relative;">
+
+                    <!-- Loading Animation -->
+                    <div class="loading-animation" id="loading-region-by-stat"
+                         style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;">
+                        <video autoplay loop muted>
+                            <source src="{% static 'loading_animations/animation_4.webm' %}" type="video/webm">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+
+                    <!-- Chart Container -->
+                    <div id="region-by-stat" style="width: 100%; height: 100%;"></div>
+                </div>
+            </div>
+
+            <!-- Stream Graph -->
+            <div class="col-lg-4 col-md-12 col-sm-12 mb-30">
+                <div class="card-box pd-10 height-100-p"
+                     style="position: relative; display: flex; align-items: center; justify-content: center;">
+                    <div id="chart-stream-graph" style="position: relative; width: 100%; height: 100%;">
+
+                        <!-- Loading Animation -->
+                        <div id="loading-animation"
+                             style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;">
+                            <video autoplay loop muted>
+                                <source src="{% static 'loading_animations/animation_4.webm' %}" type="video/webm">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+
+                        <!-- Chart Placeholder (Initially Visible) -->
+                        <div id="chart-container" style="width: 100%; height: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+<!--148a3b7b-556f-4b7d-bf47-6cea27315cd0-->
+
+<script src="{% static 'used_charts/uzbekistan-map.js' %}"></script>
+<script src="{% static 'used_charts/tashkent-map.js' %}"></script>
+<script src="{% static 'used_charts/metrics.js' %}"></script>
+<script src="{% static 'used_charts/region_by_stat.js' %}"></script>
+<script src="{% static 'used_charts/chart_stream_graph.js' %}"></script>
+
+<!--<script>-->
+<!--    const animateNumber = (id, start, end, duration) => {-->
+<!--        const element = document.getElementById(id);-->
+<!--        let startTime = null;-->
+
+<!--        const step = (timestamp) => {-->
+<!--            if (!startTime) startTime = timestamp;-->
+<!--            const progress = Math.min((timestamp - startTime) / duration, 1);-->
+<!--            element.textContent = (progress * (end - start) + start).toFixed(2);-->
+<!--            if (progress < 1) {-->
+<!--                requestAnimationFrame(step);-->
+<!--            }-->
+<!--        };-->
+
+<!--        requestAnimationFrame(step);-->
+<!--    };-->
+
+<!--    const fetchDataAndAnimate = async () => {-->
+<!--        try {-->
+<!--            const form = document.getElementById('filter-form');-->
+<!--            const formData = new FormData(form);-->
+<!--            const params = new URLSearchParams(formData).toString();-->
+<!--            const response = await fetch(`/api/apartment-stats/?${params}`);-->
+<!--            const data = await response.json();-->
+
+<!--            animateNumber('price_per_sqm', 0, data.price_per_sqm, 700);-->
+<!--            animateNumber('avg_price', 0, data.avg_price, 700);-->
+<!--            animateNumber('price_per_sqm_usd', 0, data.price_per_sqm_usd, 700);-->
+<!--            animateNumber('avg_price_usd', 0, data.avg_price_usd, 700);-->
+<!--        } catch (error) {-->
+<!--            console.error('Error fetching data:', error);-->
+<!--        }-->
+<!--    };-->
+
+<!--    document.querySelectorAll('.filter').forEach(element => {-->
+<!--        element.addEventListener('change', fetchDataAndAnimate);-->
+<!--    });-->
+
+<!--    // Listen for district filter changes-->
+<!--    const districtFilter = document.getElementById('district-filter');-->
+<!--    if (districtFilter) {-->
+<!--        districtFilter.addEventListener('change', fetchDataAndAnimate);-->
+<!--    }-->
+
+<!--    fetchDataAndAnimate();-->
+
+<!--    const resetButton = document.getElementById('reset-button');-->
+<!--    resetButton.addEventListener('click', (event) => {-->
+<!--        event.preventDefault();-->
+<!--        document.getElementById('filter-form').reset();-->
+
+<!--        // Remove the region and district input if they exist-->
+<!--        ['region', 'district'].forEach(name => {-->
+<!--            const input = document.querySelector(`input[name="${name}"]`);-->
+<!--            if (input) {-->
+<!--                input.remove();-->
+<!--            }-->
+<!--        });-->
+
+<!--        fetchDataAndAnimate();-->
+<!--    });-->
+
+<!--    fetchDataAndAnimate();-->
+<!--</script>-->
+
+<!--<script>-->
+<!--    document.addEventListener('DOMContentLoaded', function () {-->
+<!--        // Function to fetch data and update chart-->
+<!--        function fetchDataAndUpdateChart(filters) {-->
+<!--            const queryString = new URLSearchParams(filters).toString();-->
+<!--            fetch(`/api/by-region-stats/?${queryString}`)-->
+<!--                .then(response => response.json())-->
+<!--                .then(data => {-->
+<!--                    const metrics = ['avg_price', 'avg_price_usd'];-->
+<!--                    const regionMap = {-->
+<!--                        'andizhanskaya-oblast': 'Andijan',-->
+<!--                        'buharskaya-oblast': 'Bukhara',-->
+<!--                        'dzhizakskaya-oblast': 'Jizzakh',-->
+<!--                        'ferganskaya-oblast': 'Fergana',-->
+<!--                        'horezmskaya-oblast': 'Khorezm',-->
+<!--                        'karakalpakstan': 'Karakalpakstan',-->
+<!--                        'kashkadarinskaya-oblast': 'Kashkadarya',-->
+<!--                        'namanganskaya-oblast': 'Namangan',-->
+<!--                        'navoijskaya-oblast': 'Navoi',-->
+<!--                        'samarkandskaya-oblast': 'Samarkand',-->
+<!--                        'surhandarinskaya-oblast': 'Surkhandarya',-->
+<!--                        'syrdarinskaya-oblast': 'Sirdarya',-->
+<!--                        'toshkent-oblast': 'Tashkent'-->
+<!--                    };-->
+<!--                    const regions = Object.keys(data).map(region => regionMap[region] || region);-->
+
+<!--                    // Function to extract data for each metric-->
+<!--                    function getMetricData(metric) {-->
+<!--                        return Object.keys(data).map(region => data[region][metric]);-->
+<!--                    }-->
+
+<!--                    Highcharts.chart('region-by-stat', {-->
+<!--                        chart: {-->
+<!--                            type: 'bar',-->
+<!--                            height: 600-->
+<!--                        },-->
+<!--                        title: {-->
+<!--                            text: 'Regional Statistics | Analysis by region'-->
+<!--                        },-->
+<!--                        xAxis: {-->
+<!--                            categories: regions,-->
+<!--                        },-->
+<!--                        yAxis: [{-->
+<!--                            // Primary yAxis for avg_price-->
+<!--                            title: {-->
+<!--                                text: 'Avg Price (in million UZS)'-->
+<!--                            },-->
+<!--                            min: 0,-->
+<!--                            opposite: true,-->
+<!--                            labels: {-->
+<!--                                format: '{value}'-->
+<!--                            }-->
+<!--                        }, {-->
+<!--                            // Secondary yAxis for avg_price_usd-->
+<!--                            title: {-->
+<!--                                text: 'Avg Price (in thousand USD)'-->
+<!--                            },-->
+<!--                            min: 0,-->
+<!--                            opposite: false,-->
+<!--                            labels: {-->
+<!--                                format: '{value}'-->
+<!--                            }-->
+<!--                        }],-->
+<!--                        series: metrics.map(metric => ({-->
+<!--                            name: metric.replace(/_/g, ' ').toUpperCase(),-->
+<!--                            data: getMetricData(metric),-->
+<!--                            yAxis: metrics.indexOf(metric)-->
+<!--                        }))-->
+<!--                    });-->
+<!--                })-->
+<!--                .catch(error => console.error('Error fetching data:', error));-->
+<!--        }-->
+
+<!--        // Fetch initial data without filters-->
+<!--        fetchDataAndUpdateChart({});-->
+
+<!--        // Event listener for filter changes-->
+<!--        document.querySelectorAll('.filter').forEach(filterElement => {-->
+<!--            filterElement.addEventListener('change', function () {-->
+<!--                const filters = {};-->
+<!--                document.querySelectorAll('.filter').forEach(filter => {-->
+<!--                    if (filter.value) {-->
+<!--                        filters[filter.name] = filter.value;-->
+<!--                    }-->
+<!--                });-->
+<!--                fetchDataAndUpdateChart(filters);-->
+<!--            });-->
+<!--        });-->
+
+<!--        // Reset button functionality-->
+<!--        document.getElementById('reset-button').addEventListener('click', function () {-->
+<!--            document.getElementById('filter-form').reset();-->
+<!--            fetchDataAndUpdateChart({});-->
+<!--        });-->
+<!--    });-->
+<!--</script>-->
+
+<!--<script>-->
+<!--    document.addEventListener('DOMContentLoaded', function () {-->
+<!--        const filterForm = document.getElementById('filter-form');-->
+<!--        const fromDate = document.getElementById('from-date');-->
+<!--        const toDate = document.getElementById('to-date');-->
+<!--        const dropdown1 = document.getElementById('dropdown1');-->
+<!--        const dropdown2 = document.getElementById('dropdown2');-->
+<!--        const dropdown3 = document.getElementById('dropdown3');-->
+<!--        const dropdown4 = document.getElementById('dropdown4');-->
+
+<!--        function fetchData() {-->
+<!--            const params = {-->
+<!--                from_date: fromDate.value,-->
+<!--                to_date: toDate.value,-->
+<!--                number_of_rooms: dropdown1.value,-->
+<!--                total_floors: dropdown2.value,-->
+<!--                floors: dropdown3.value,-->
+<!--                type_of_market: dropdown4.value-->
+<!--            };-->
+
+<!--            $.ajax({-->
+<!--                url: '/api/monthly-average-price/',-->
+<!--                method: 'GET',-->
+<!--                data: params,-->
+<!--                success: function(response) {-->
+<!--                    const categories = [];-->
+<!--                    const series = [];-->
+
+<!--                    const regionMap = {-->
+<!--                        'andizhanskaya-oblast': 'Andijan',-->
+<!--                        'buharskaya-oblast': 'Bukhara',-->
+<!--                        'dzhizakskaya-oblast': 'Jizzakh',-->
+<!--                        'ferganskaya-oblast': 'Fergana',-->
+<!--                        'horezmskaya-oblast': 'Khorezm',-->
+<!--                        'karakalpakstan': 'Karakalpakstan',-->
+<!--                        'kashkadarinskaya-oblast': 'Kashkadarya',-->
+<!--                        'namanganskaya-oblast': 'Namangan',-->
+<!--                        'navoijskaya-oblast': 'Navoi',-->
+<!--                        'samarkandskaya-oblast': 'Samarkand',-->
+<!--                        'surhandarinskaya-oblast': 'Surkhandarya',-->
+<!--                        'syrdarinskaya-oblast': 'Sirdarya',-->
+<!--                        'toshkent-oblast': 'Tashkent'-->
+<!--                    };-->
+
+<!--                    for (const region in response) {-->
+<!--                        const regionData = response[region].data;-->
+<!--                        const regionName = regionMap[response[region].region] || response[region].region;-->
+<!--                        const regionSeries = {-->
+<!--                            name: regionName,-->
+<!--                            data: []-->
+<!--                        };-->
+
+<!--                        regionData.forEach((dataPoint, index) => {-->
+<!--                            const [month, price] = dataPoint;-->
+
+<!--                            if (!categories.includes(month)) {-->
+<!--                                categories.push(month);-->
+<!--                            }-->
+
+<!--                            regionSeries.data[index] = price;-->
+<!--                        });-->
+
+<!--                        series.push(regionSeries);-->
+<!--                    }-->
+
+<!--                    // Create or update the chart-->
+<!--                    Highcharts.chart('chart-stream-graph', {-->
+<!--                        chart: {-->
+<!--                            type: 'streamgraph',-->
+<!--                            height: 600 // Increase the height-->
+<!--                        },-->
+<!--                        title: {-->
+<!--                            text: 'Monthly Average Prices'-->
+<!--                        },-->
+<!--                        xAxis: {-->
+<!--                            type: 'category',-->
+<!--                            categories: categories,-->
+<!--                            zoomType: 'x' // Enable zoom on x-axis-->
+<!--                        },-->
+<!--                        yAxis: {-->
+<!--                            title: {-->
+<!--                                text: 'Average Price (in million UZS)'-->
+<!--                            },-->
+<!--                            labels: {-->
+<!--                                enabled: false // Remove y-axis values-->
+<!--                            }-->
+<!--                        },-->
+<!--                        legend: {-->
+<!--                            enabled: false // Remove legends-->
+<!--                        },-->
+<!--                        plotOptions: {-->
+<!--                            series: {-->
+<!--                                dataLabels: {-->
+<!--                                    enabled: false // Remove data labels-->
+<!--                                }-->
+<!--                            }-->
+<!--                        },-->
+<!--                        series: series-->
+<!--                    });-->
+<!--                },-->
+<!--                error: function(error) {-->
+<!--                    console.error('Error fetching data:', error);-->
+<!--                }-->
+<!--            });-->
+<!--        }-->
+
+<!--        // Fetch data initially-->
+<!--        fetchData();-->
+
+<!--        // Add event listener to the filter form-->
+<!--        filterForm.addEventListener('change', fetchData);-->
+
+<!--        // Add event listener to the reset button-->
+<!--        document.getElementById('reset-button').addEventListener('click', function () {-->
+<!--            filterForm.reset();-->
+<!--            fetchData();-->
+<!--        });-->
+<!--    });-->
+<!--</script>-->
+
+
+{% endblock %}

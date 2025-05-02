@@ -1,0 +1,16 @@
+{% load static %}
+<div class="pre-loader">
+    <div class="pre-loader-box">
+        <div class="loader-logo"><img src="{% static 'vendors/images/black_banner.png' %}" alt=""></div>
+        <div class='loader-progress' id="progress_div"
+             style="width: 100%; max-width: 300px; height: 10px; background: #ddd; border-radius: 5px; overflow: hidden; margin: 20px auto;">
+            <div class='bar' id='bar1'
+                 style="width: 0%; height: 100%; background-color: #0b132b; transition: width 0.3s ease-in-out;">
+            </div>
+        </div>
+        <div class='percent' id='percent1'>0%</div>
+        <div class="loading-text">
+            Loading...
+        </div>
+    </div>
+</div>

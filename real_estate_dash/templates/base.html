@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+{% include 'components_base/_header.html' %}
+<body>
+
+<!--{% include 'components_base/_pre_loader.html' %}-->
+
+{% include 'components_base/_navbar.html' %}
+
+
+{% include 'components_base/_rightsidebar.html' %}
+{% include 'components_base/_leftsidebar.html' %}
+
+<div class="mobile-menu-overlay"></div>
+{% block main %}
+
+{% endblock main %}
+<!-- js -->
+{% include 'components_base/_scripts.html' %}
+</body>
+</html>

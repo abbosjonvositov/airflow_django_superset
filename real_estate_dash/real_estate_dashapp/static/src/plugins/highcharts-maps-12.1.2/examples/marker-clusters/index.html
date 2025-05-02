@@ -1,0 +1,149 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Highmaps Example</title>
+
+		<style type="text/css">
+#container {
+    min-width: 310px;
+    max-width: 700px;
+    height: 600px;
+    margin: 0 auto;
+}
+
+		</style>
+	</head>
+	<body>
+<script src="../../code/highmaps.js"></script>
+<script src="../../code/modules/marker-clusters.js"></script>
+<script src="../../code/modules/coloraxis.js"></script>
+<script src="../../code/modules/accessibility.js"></script>
+
+<div id="container"></div>
+
+
+		<script type="text/javascript">
+(async () => {
+
+    const topology = await fetch(
+        'https://code.highcharts.com/mapdata/custom/europe.topo.json'
+    ).then(response => response.json());
+
+    const data = await fetch(
+        'https://www.highcharts.com/samples/data/european-train-stations-near-airports.json'
+    ).then(response => response.json());
+
+    Highcharts.mapChart('container', {
+        chart: {
+            map: topology
+        },
+        title: {
+            text: 'European Train Stations Near Airports',
+            align: 'left'
+        },
+        subtitle: {
+            text: 'Source: <a href="https://github.com/trainline-eu/stations">' +
+                    'github.com/trainline-eu/stations</a>',
+            align: 'left'
+        },
+        mapNavigation: {
+            enabled: true
+        },
+        tooltip: {
+            headerFormat: '',
+            pointFormat: '<b>{point.name}</b><br>Lat: {point.lat:.2f}, Lon: ' +
+                '{point.lon:.2f}'
+        },
+        colorAxis: {
+            min: 0,
+            max: 20
+        },
+        plotOptions: {
+            mappoint: {
+                cluster: {
+                    enabled: true,
+                    allowOverlap: false,
+                    animation: {
+                        duration: 450
+                    },
+                    layoutAlgorithm: {
+                        type: 'grid',
+                        gridSize: 70
+                    },
+                    zones: [{
+                        from: 1,
+                        to: 4,
+                        marker: {
+                            radius: 13
+                        }
+                    }, {
+                        from: 5,
+                        to: 9,
+                        marker: {
+                            radius: 15
+                        }
+                    }, {
+                        from: 10,
+                        to: 15,
+                        marker: {
+                            radius: 17
+                        }
+                    }, {
+                        from: 16,
+                        to: 20,
+                        marker: {
+                            radius: 19
+                        }
+                    }, {
+                        from: 21,
+                        to: 100,
+                        marker: {
+                            radius: 21
+                        }
+                    }]
+                }
+            }
+        },
+        series: [{
+            name: 'Europe',
+            accessibility: {
+                exposeAsGroupOnly: true
+            },
+            borderColor: '#A0A0A0',
+            nullColor: 'rgba(177, 244, 177, 0.5)',
+            showInLegend: false
+        }, {
+            type: 'mappoint',
+            enableMouseTracking: true,
+            accessibility: {
+                point: {
+                    descriptionFormat: '{#if isCluster}' +
+                            'Grouping of {clusterPointsAmount} points.' +
+                            '{else}' +
+                            '{name}, country code: {country}.' +
+                            '{/if}'
+                }
+            },
+            colorKey: 'clusterPointsAmount',
+            name: 'Cities',
+            data: data,
+            color: Highcharts.getOptions().colors[5],
+            marker: {
+                lineWidth: 1,
+                lineColor: '#fff',
+                symbol: 'mapmarker',
+                radius: 8
+            },
+            dataLabels: {
+                verticalAlign: 'top'
+            }
+        }]
+    });
+
+})();
+
+		</script>
+	</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Highmaps Example</title>
+
+		<style type="text/css">
+#container {
+    height: 500px;
+    min-width: 310px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.loading {
+    margin-top: 10em;
+    text-align: center;
+    color: gray;
+}
+
+		</style>
+	</head>
+	<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.10.0/proj4.js" integrity="sha512-e3rsOu6v8lmVnZylXpOq3DO/UxrCgoEMqosQxGygrgHlves9HTwQzVQ/dLO+nwSbOSAecjRD7Y/c4onmiBVo6w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="../../code/highmaps.js"></script>
+<script src="../../code/modules/data.js"></script>
+<script src="../../code/modules/exporting.js"></script>
+<script src="../../code/modules/offline-exporting.js"></script>
+<script src="../../code/modules/accessibility.js"></script>
+
+<div id="container"></div>
+
+
+		<script type="text/javascript">
+(async () => {
+
+    const topology = await fetch(
+        'https://code.highcharts.com/mapdata/countries/us/us-all.topo.json'
+    ).then(response => response.json());
+
+    const data = await fetch(
+        'https://www.highcharts.com/samples/data/us-capitals.json'
+    ).then(response => response.json());
+
+    data.forEach(p => {
+        p.z = p.population;
+    });
+
+    const H = Highcharts;
+
+    const chart = Highcharts.mapChart('container', {
+        title: {
+            text: 'Highcharts Maps lon/lat demo'
+        },
+
+        tooltip: {
+            pointFormat: '{point.capital}, {point.parentState}<br>' +
+                'Lon: {point.lon}<br>' +
+                'Lat: {point.lat}<br>' +
+                'Population: {point.population}'
+        },
+
+        xAxis: {
+            crosshair: {
+                zIndex: 5,
+                dashStyle: 'dot',
+                snap: false,
+                color: 'gray'
+            }
+        },
+
+        yAxis: {
+            crosshair: {
+                zIndex: 5,
+                dashStyle: 'dot',
+                snap: false,
+                color: 'gray'
+            }
+        },
+
+        series: [{
+            name: 'Basemap',
+            mapData: topology,
+            accessibility: {
+                exposeAsGroupOnly: true
+            },
+            borderColor: '#606060',
+            nullColor: 'rgba(200, 200, 200, 0.2)',
+            showInLegend: false
+        }, {
+            type: 'mapbubble',
+            dataLabels: {
+                enabled: true,
+                format: '{point.capital}'
+            },
+            accessibility: {
+                point: {
+                    valueDescriptionFormat: '{point.capital}, ' +
+                        '{point.parentState}. Population {point.population}. ' +
+                        'Latitude {point.lat:.2f}, longitude {point.lon:.2f}.'
+                }
+            },
+            name: 'State capital cities',
+            data: data,
+            maxSize: '12%',
+            color: H.getOptions().colors[0]
+        }]
+    });
+
+    // Display custom label with lat/lon next to crosshairs
+    document.getElementById('container').addEventListener('mousemove', e => {
+        if (!chart.lbl) {
+            chart.lbl = chart.renderer.text('', 0, 0)
+                .attr({
+                    zIndex: 5
+                })
+                .css({
+                    color: '#505050'
+                })
+                .add();
+        }
+
+        e = chart.pointer.normalize(e);
+
+        chart.lbl.attr({
+            x: e.chartX + 5,
+            y: e.chartY - 22,
+            text: 'Lat: ' + e.lat.toFixed(2) + '<br>Lon: ' + e.lon.toFixed(2)
+        });
+    });
+
+})();
+
+		</script>
+	</body>
+</html>
