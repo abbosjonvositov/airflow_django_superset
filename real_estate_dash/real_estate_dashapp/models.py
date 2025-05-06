@@ -1,8 +1,8 @@
 from django.db import models
 import os
 from django.utils.timezone import now
-
-
+import re
+from datetime import datetime
 
 
 class LayoutDim(models.Model):
@@ -128,8 +128,6 @@ class ExchangeRateDim(models.Model):
         db_table = 'exchange_rate_dim'
 
 
-
-
 def upload_csv_path(instance, filename):
     return filename  # Saves file directly to MEDIA_ROOT without additional directories
 
@@ -171,3 +169,67 @@ class ETLLog(models.Model):
 
     def __str__(self):
         return f"ETL Run - {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}"
+
+
+class Model(models.Model):
+    model_name = models.CharField(max_length=255, unique=True)
+    model_type = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.model_name:
+            # Find the latest model with the same type
+            last_model = Model.objects.filter(model_type=self.model_type).order_by('-created_at').first()
+            if last_model and last_model.model_name:
+                # Extract version number using regex
+                match = re.search(rf'{re.escape(self.model_type)}_v_(\d+)', last_model.model_name)
+                if match:
+                    version = int(match.group(1)) + 1
+                else:
+                    version = 1
+            else:
+                version = 1
+            self.model_name = f"{self.model_type}_v_{version}"
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.model_name} ({self.model_type})"
+
+    class Meta:
+        db_table = 'model_metadata'
+
+
+class ModelMetric(models.Model):
+    model = models.ForeignKey('Model', on_delete=models.CASCADE, related_name='metrics')
+    rmse = models.FloatField()
+    mse = models.FloatField()
+    mape = models.FloatField()
+    r2 = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'model_metrics'
+
+
+class ModelTrainingData(models.Model):
+    model = models.ForeignKey('Model', on_delete=models.CASCADE, related_name='training_data')
+    data_range_start = models.DateField()
+    data_range_end = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        # Convert "YYYY-MM" strings to "YYYY-MM-01" dates if needed
+        for field in ['data_range_start', 'data_range_end']:
+            value = getattr(self, field)
+            if isinstance(value, str):
+                try:
+                    setattr(self, field, datetime.strptime(value, "%Y-%m").date())
+                except ValueError:
+                    raise ValueError(f"Invalid date format for {field}. Expected 'YYYY-MM'.")
+        super().save(*args, **kwargs)
+
+    def formatted_range(self):
+        return f"{self.data_range_start.strftime('%Y-%m')} to {self.data_range_end.strftime('%Y-%m')}"
+
+    class Meta:
+        db_table = 'model_data_range'

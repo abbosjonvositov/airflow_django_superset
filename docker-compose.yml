@@ -41,7 +41,9 @@ services:
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/etl:/opt/airflow/etl
+      - ./airflow/ml_pipeline:/opt/airflow/ml_pipeline
       - ./real_estate_dash:/opt/airflow/django_project  # Mount Django project inside Airflow
+      - ./shared_data:/shared_data
     command: >
       bash -c "until pg_isready -h postgres_db -p 5432 -U ${SQL_USER}; do sleep 2; done &&
                airflow db init &&
@@ -64,6 +66,7 @@ services:
       - "8000:8000"
     volumes:
       - ./real_estate_dash:/app
+      - ./shared_data:/shared_data
     command: >
       bash -c "until pg_isready -h postgres_db -p 5432 -U ${SQL_USER}; do sleep 2; done &&
                python manage.py makemigrations &&

@@ -6,8 +6,8 @@ cryptography==44.0.2
 Django==5.1.7
 djangorestframework==3.16.0
 mysql-connector==2.2.9
-numpy==2.2.4
-pandas==2.2.3
+numpy==1.26.4
+pandas==2.2.1
 paramiko==3.5.1
 psycopg2-binary==2.9.10
 pycparser==2.22
@@ -20,3 +20,9 @@ sqlparse==0.5.3
 sshtunnel==0.4.0
 typing_extensions==4.13.0
 tzdata==2025.2
+pytz==2025.2
+openpyxl==3.1.5
+joblib==1.4.2
+xgboost==3.0.0
+lightgbm==4.6.0
+scikit-learn==1.6.1

@@ -8,7 +8,6 @@ from django.utils.timezone import now
 from django.db.models import Max
 from real_estate_dashapp.models import DimTime
 from datetime import datetime
-from utils import XComDataWrapper
 
 # Set Django project path and settings
 sys.path.append("/opt/airflow/django_project")
