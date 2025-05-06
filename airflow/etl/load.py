@@ -133,7 +133,8 @@ def load_data(**context):
                 )
                 print('✅ Exchange rate updated')
             except Exception as e:
-                print(f'Error: {e}')
+                continue
+                # print(f'Error: {e}')
 
 
     except Exception as e:
