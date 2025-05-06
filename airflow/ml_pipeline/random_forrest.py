@@ -4,7 +4,7 @@ import time
 from sklearn.ensemble import RandomForestRegressor
 import sys
 import os
-
+from datetime import datetime
 from real_estate_dashapp.models import Model, ModelMetric, ModelTrainingData
 
 sys.path.append("/opt/airflow/django_project")
@@ -87,13 +87,31 @@ def random_forest_algo(**context):
 
         # Get sorted unique months
         months = sorted(cleaned_df['year_month'].unique())
+        print(months)
 
         best_models = []
 
         for i in range(1, len(months) + 1):
             subset_months = months[:i]  # Incremental grouping
-            filtered_df = cleaned_df[cleaned_df['year_month'].isin(subset_months)]
+            data_range_start = subset_months[0]
+            data_range_end = subset_months[-1]
 
+            data_range_start = datetime.strptime(data_range_start, "%Y-%m").date()
+            data_range_end = datetime.strptime(data_range_end, "%Y-%m").date()
+
+            # Check if a model for this data range already exists
+
+            existing_model_data = ModelTrainingData.objects.filter(
+                data_range_start=data_range_start,
+                data_range_end=data_range_end
+            ).exists()
+
+            if existing_model_data:
+                print(f"Skipping training for {data_range_start} to {data_range_end}, model already trained.")
+                continue  # Skip iteration if data range already trained
+
+            # Prepare data
+            filtered_df = cleaned_df[cleaned_df['year_month'].isin(subset_months)]
             categorical_columns = cleaned_df.select_dtypes(include=['object']).columns.tolist()
             df_one_hot_encoded = apply_one_hot_encoding(filtered_df, categorical_columns)
 
@@ -112,26 +130,27 @@ def random_forest_algo(**context):
             model_instance = Model.objects.create(model_type='RandomForest')
             ModelTrainingData.objects.create(
                 model=model_instance,
-                data_range_start=subset_months[0],
-                data_range_end=subset_months[-1]
+                data_range_start=data_range_start,
+                data_range_end=data_range_end
             )
 
             # Store metrics
             metrics = calculate_metrics(y_test, y_pred)
             ModelMetric.objects.create(
                 model=model_instance,
-                rmse=metrics['rmse'],
-                mse=metrics['mse'],
-                mape=metrics['mape'],
-                r2=metrics['r2']
+                rmse=metrics['RMSE'],
+                mse=metrics['MSE'],
+                mape=metrics['MAPE'],
+                mae=metrics['MAE'],
+                r2=metrics['R2'],
+                obesrvations=filtered_df.shape[0]
             )
 
             best_models.append((model_instance.model_name, score))
-
             print(
-                f"Trained model {model_instance.model_name} from {subset_months[0]} to {subset_months[-1]} - Score: {score}")
+                f"Trained model {model_instance.model_name} from {data_range_start} to {data_range_end} - Score: {score}")
 
-        return '-- STATUS: SUCCESS | ALL MODELS TRAINED | METRICS STORED --'
+        return '-- STATUS: SUCCESS | ALL MODELS TRAINED (NEW ONLY) | METRICS STORED --'
 
     except Exception as e:
         print(f"Error during model training: {e}")

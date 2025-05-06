@@ -203,8 +203,10 @@ class ModelMetric(models.Model):
     model = models.ForeignKey('Model', on_delete=models.CASCADE, related_name='metrics')
     rmse = models.FloatField()
     mse = models.FloatField()
+    mae = models.FloatField()
     mape = models.FloatField()
     r2 = models.FloatField()
+    observations_count = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
