@@ -70,6 +70,7 @@ def random_forest_algo_(**context):
         y_pred = best_model.predict(X_test)
         metrics = calculate_metrics(y_test, y_pred)
         print(metrics)
+
         return '-- STATUS: SUCCESS | RF TRAINED | JOBLIB SAVED --'
 
     except Exception as e:
@@ -102,7 +103,8 @@ def random_forest_algo(**context):
 
             existing_model_data = ModelTrainingData.objects.filter(
                 data_range_start=data_range_start,
-                data_range_end=data_range_end
+                data_range_end=data_range_end,
+                model__model_type="RandomForest",
             ).exists()
 
             if existing_model_data:
@@ -170,6 +172,8 @@ def random_forest_algo(**context):
                 best_models.append((model_instance.model_name, score))
                 print(
                     f"Trained model {model_instance.model_name} from {data_range_start} to {data_range_end} - Score: {score}")
+                save_model(model=model, filename='random_forrest')
+                print('---- RANDOM FORREST | PKL MODEL SAVED SUCCESSFULLY ----')
 
         return '-- STATUS: SUCCESS | ALL MODELS TRAINED (NEW ONLY) | METRICS STORED --'
 

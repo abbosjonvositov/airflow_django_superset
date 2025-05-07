@@ -25,7 +25,6 @@ def add_timezone(dt):
 
 
 def extract_data_for_ml_algorithm(**context):
-
     districts = [
         'Чиланзарский район', 'Юнусабадский район', 'Янгихаётский район',
         'Яккасарайский район', 'Шайхантахурский район',
@@ -49,7 +48,7 @@ def extract_data_for_ml_algorithm(**context):
         location__district__district_name__in=districts,
         numeric__number_of_rooms__lte=7,
         numeric__total_floors__lte=16
-    )[:100000]
+    )
 
     records = []
 

@@ -73,4 +73,4 @@ lightgbm_algorithm = PythonOperator(
 )
 
 # Define Task Execution Order
-extract_data_for_analysis >> preprocess_data_for_analysis >> [random_forrest_algorithm, xgboost_algorithm, lightgbm_algorithm]
+extract_data_for_analysis >> preprocess_data_for_analysis >> lightgbm_algorithm >> xgboost_algorithm >> random_forrest_algorithm

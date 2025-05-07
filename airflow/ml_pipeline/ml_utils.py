@@ -25,7 +25,7 @@ def preprocess_data(X, y):
     scaler_path = os.path.join("/shared_data", "pkls", "scaler.pkl")
     joblib.dump(scaler, scaler_path)
 
-    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=23)
     return X_train, X_test, y_train, y_test
 
 
@@ -114,11 +114,13 @@ def fill_missing_with_mode(df, columns, group_by='district_name'):
 
 
 def save_model(model, filename):
-    dump(model, f'{filename}.pkl')
+    scaler_path = os.path.join("/shared_data", "pkls", f'{filename}.pkl')
+    dump(model, scaler_path)
     print(f"Model saved as {filename}.pkl")
     print(f"Expected columns saved as {filename}_columns.pkl")
 
 
 def save_expected_columns(X):
     expected_columns = list(X.columns)
-    dump(expected_columns, f'expected_columns.pkl')
+    scaler_path = os.path.join("/shared_data", "pkls", f'expected_columns.pkl')
+    dump(expected_columns, scaler_path)

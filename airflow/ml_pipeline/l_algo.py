@@ -75,7 +75,8 @@ def lightgbm_algorithm(**context):
                     max_depth=max_depth,
                     learning_rate=learning_rate,
                     num_leaves=num_leaves,
-                    random_state=42
+                    random_state=42,
+                    force_col_wise=True
                 )
                 model.fit(X_train, y_train)
                 score = model.score(X_test, y_test)  # Evaluate on test set
@@ -104,6 +105,8 @@ def lightgbm_algorithm(**context):
                 best_models.append((model_instance.model_name, score))
                 print(
                     f"Trained model {model_instance.model_name} from {data_range_start} to {data_range_end} - Score: {score}")
+                save_model(model=model, filename='lightgbm')
+                print('---- LIGHTGBM | PKL MODEL SAVED SUCCESSFULLY ----')
 
         return '-- STATUS: SUCCESS | ALL MODELS TRAINED (NEW ONLY) | METRICS STORED --'
 
