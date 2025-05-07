@@ -14,17 +14,13 @@ from django.utils.timezone import now
 import numpy as np
 import json
 from django.conf import settings
-from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-# from .utils import rf_model_prediction
+from .utils import rf_model_prediction
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.cache import cache
-
-
-
 
 tashkent_district_filter_map = {
     "Almazar": "Алмазарский район",
@@ -77,7 +73,7 @@ class IndividualPredictionView(TemplateView):
                        'Малосемейка', 'Студия', 'Пентхаус']
         foundation_name = ['Кирпичный', 'Панельный', 'Монолитный', 'Блочный', 'Деревянный']
         wc_name = ['Совмещенный', 'Раздельный', '2 санузла и более']
-        year_month = ['2024-11', '2024-12', '2025-01', '2025-02', '2025-03', '2025-04']
+        year_month = ['2024-11', '2024-12', '2025-01', '2025-02', '2025-03', '2025-04', '2025-05']
         repair_name = ['Авторский проект', 'Евроремонт', 'Черновая отделка',
                        'Требует ремонта', 'Предчистовая отделка', 'Средний']
         type_of_market = {
@@ -100,8 +96,6 @@ class IndividualPredictionView(TemplateView):
         return context
 
 
-
-
 class IndividualPredictionAPI(APIView):
     def post(self, request):
         """Receives form data and caches it for later model predictions."""
@@ -119,7 +113,7 @@ class IndividualPredictionAPI(APIView):
             'year_month': request.data.get('year_month'),
             'is_primary': request.data.get('is_primary')
         }
-
+        print(data)
         # Cache data with a timeout (e.g., 5 minutes)
         cache.set('prediction_features', data, timeout=300)
 
@@ -133,7 +127,7 @@ class IndividualPredictionAPI(APIView):
             return Response({"success": False, "message": "No cached data found."}, status=status.HTTP_404_NOT_FOUND)
 
         # Apply model prediction using cached data
-        results = ''#rf_model_prediction([data])
+        results = rf_model_prediction([data])
 
         response_data = {
             'success': True,

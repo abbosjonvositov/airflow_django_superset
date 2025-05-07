@@ -335,7 +335,7 @@
                         animateNumber('lower_bound', 0, getData.lower_bound, 1500);
 
                         Array.from(document.getElementsByClassName('stander-dev')).forEach(element => {
-                            element.textContent = (2 * getData.std_dev).toLocaleString('en-US', { minimumFractionDigits: 2 });
+                            element.textContent = (getData.std_dev).toLocaleString('en-US', { minimumFractionDigits: 2 });
                         });
                     } else {
                         console.error('Prediction retrieval failed:', getData.message);
