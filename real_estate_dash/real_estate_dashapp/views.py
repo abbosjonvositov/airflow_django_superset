@@ -113,9 +113,10 @@ class IndividualPredictionAPI(APIView):
             'year_month': request.data.get('year_month'),
             'is_primary': request.data.get('is_primary')
         }
-        print(data)
         # Cache data with a timeout (e.g., 5 minutes)
         cache.set('prediction_features', data, timeout=300)
+        with open('response.json', 'w', encoding='utf-8-sig') as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
 
         return Response({"success": True, "message": "Features cached successfully."}, status=status.HTTP_200_OK)
 
@@ -141,13 +142,45 @@ class IndividualPredictionAPI(APIView):
 
         return Response(response_data, status=status.HTTP_200_OK)
 
+class BulkPredictionView(TemplateView):
+    template_name = 'bulk_prediction.html'
+
+    def get_context_data(self, **kwargs):
+        districts = [
+            'Чиланзарский район', 'Юнусабадский район', 'Янгихаётский район',
+            'Яккасарайский район', 'Шайхантахурский район',
+            'Мирабадский район', 'Учтепинский район', 'Яшнабадский район',
+            'Бектемирский район', 'Сергелийский район',
+            'Мирзо-Улугбекский район', 'Алмазарский район', 'Новый Ташкентский район'
+        ]
+        layout_name = ['Раздельная', 'Смежно-раздельная', 'Смежная', 'Многоуровневая',
+                       'Малосемейка', 'Студия', 'Пентхаус']
+        foundation_name = ['Кирпичный', 'Панельный', 'Монолитный', 'Блочный', 'Деревянный']
+        wc_name = ['Совмещенный', 'Раздельный', '2 санузла и более']
+        year_month = ['2024-11', '2024-12', '2025-01', '2025-02', '2025-03', '2025-04', '2025-05']
+        repair_name = ['Авторский проект', 'Евроремонт', 'Черновая отделка',
+                       'Требует ремонта', 'Предчистовая отделка', 'Средний']
+        type_of_market = {
+            'yes': 1,
+            'no': 0
+        }
+
+        context = super().get_context_data(**kwargs)
+        context['districts'] = districts
+        context['number_of_rooms'] = [i for i in range(1, 8)]
+        context['floors'] = [i for i in range(1, 17)]
+        context['total_floors'] = [i for i in range(1, 17)]
+        context['foundation_name'] = foundation_name
+        context['layout_name'] = layout_name
+        context['wc_name'] = wc_name
+        context['year_month'] = year_month
+        context['repair_name'] = repair_name
+        context['type_of_market'] = type_of_market
+
+        return context
 
 class MLUIView(TemplateView):
     template_name = 'ml_ui.html'
-
-
-class PredictionBulkView(TemplateView):
-    template_name = 'prediction_in_bulk.html'
 
 
 class ApartmentStatsView(APIView):

@@ -45,9 +45,18 @@ def get_expected_columns():
         cache.set("expected_columns", expected_columns, timeout=None)  # Store indefinitely
     return expected_columns
 
+def get_scaler():
+    scaler = cache.get("scaler")
+    if scaler is None:
+        scaler = load(os.path.join(shared_data_path, 'scaler.pkl'))
 
-# scaler = load(os.path.join(shared_data_path, 'scaler.pkl'))
+        cache.set("scaler", scaler, timeout=None)  # Store indefinitely
+    return scaler
 
+def preprocess_data_single_entry(X, scaler):
+    """Applies the previously fitted MinMaxScaler to new input."""
+    X_scaled = scaler.transform(X)
+    return X_scaled
 
 def prepare_input(incoming_data: pd.DataFrame, expected_columns: list) -> pd.DataFrame:
     """One-hot encodes and aligns input data to match training features."""
@@ -80,15 +89,20 @@ def predict_with_confidence(model, X_row: pd.DataFrame) -> dict:
 
     mean_pred = np.mean(all_preds)
     std_pred = np.std(all_preds)
-    # lower_bound = mean_pred - 1.96 * std_pred  # 95% CI approximation
-    # upper_bound = mean_pred + 1.96 * std_pred
-    # Generate histogram data
-    counts, bin_edges = np.histogram(all_preds, bins='auto')  # You can also set bins=10 or another integer
+
+
+    # counts, bin_edges = np.histogram(all_preds, bins='auto')  # You can also set bins=10 or another integer
+    counts, bin_edges = np.histogram(all_preds, bins='auto')
+
+    # # Filter out bins with zero counts
+    # non_zero_mask = counts > 0
+    # filtered_counts = counts[non_zero_mask]
+    # filtered_bin_edges = bin_edges[:-1][non_zero_mask]  # Left edges of non-zero bins
 
     return {
         'prediction': mean_pred,
-        'lower_bound': mean_pred - 1 * std_pred,
-        'upper_bound': mean_pred + 1 * std_pred,
+        'lower_bound': mean_pred - 1.96 * std_pred,
+        'upper_bound': mean_pred + 1.96 * std_pred,
         'std_dev': std_pred,
         'histogram': {
             'counts': counts.tolist(),
@@ -126,18 +140,14 @@ def predict_with_confidence(model, X_row: pd.DataFrame) -> dict:
 #
 #     return result
 def rf_model_prediction(incoming_features):
-    print('FUNCTION WORKED')
     incoming_data = pd.DataFrame(incoming_features)
-
     # Load the latest cached model and expected columns
     rf_model = get_lightgbm_model()
-    print('MODEL LOADED WORKED')
-
     expected_columns = get_expected_columns()
-    print('COLUMNS LOADED')
-
+    scaler = get_scaler()
     # Preprocess and predict
-    processed_input = prepare_input(incoming_data, expected_columns).values
-    result = predict_with_confidence(rf_model, processed_input)
+    processed_input = prepare_input(incoming_data, expected_columns)
+    scaled_input = preprocess_data_single_entry(processed_input, scaler)
+    result = predict_with_confidence(rf_model, scaled_input)
 
     return result

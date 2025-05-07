@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block main %}
+{% load static %}
+<style>
+    .number-box {
+        text-align: center;
+        padding: 30px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+
+    .number {
+        font-size: 3em;
+        color: #1b00ff;
+    }
+
+    .description {
+        font-size: 1.2em;
+        color: #666;
+    }
+</style>
+<style>
+    .form-group, .form-control, .filter {
+        width: 100%;
+    }
+    .filter input[type="date"] {
+        width: calc(50% - 5px);
+    }
+    .filter select {
+        width: 100%;
+    }
+</style>
+<style>
+    .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 10px 20px;
+        border-radius: 5px;
+        color: white;
+        font-size: 16px;
+        z-index: 1000;
+        opacity: 0.9;
+        transition: opacity 0.3s ease;
+    }
+    .notification.success {
+        background-color: green;
+    }
+    .notification.error {
+        background-color: red;
+    }
+</style>
+
+<div class="main-container">
+    <div class="">
+        <div class="row">
+
+            <!-- Three small cards in one row -->
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 mb-30">
+                        <div class="card-box pd-30 height-100-p">
+                            <!-- Large card content -->
+                            <div>
+                                <select class="form-control filter" name="district_name">
+                                <option value="" disabled selected>LightGB</option>
+<!--                                <option value="#">LightGB</option>-->
+                            </select>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-30">
+                        <div class="card-box pd-30 height-100-p">
+                            <div class="progress-box text-center" style="margin-top: 10px">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-30">
+
+                        <div class="card-box pd-30 height-100-p">
+                            <div class="progress-box text-center" style="margin-top: 10px">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-30">
+                        <div class="card-box pd-30 height-100-p">
+                            <div class="progress-box text-center" style="margin-top: 10px">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Large card below the three small cards -->
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 mb-30">
+                        <div class="card-box pd-30 height-100-p">
+                            <!-- Large card content -->
+                            <div id="histogram_chart">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--<script src="https://code.highcharts.com/highcharts.js"></script>-->
+<!--<script src="https://code.highcharts.com/modules/histogram-bellcurve.js"></script>-->
+
+
+
+<!-- Updated Submit Button -->
+
+{% endblock %}
