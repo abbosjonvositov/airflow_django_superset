@@ -1,5 +1,4 @@
 gpt.py
-/shared_data
+/shared_data/pkls/random_forrest.pkl
 superset_home/.cache
 superset_home/.local
-/real_estate_dash/shared_data
