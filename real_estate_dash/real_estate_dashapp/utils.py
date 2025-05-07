@@ -95,9 +95,9 @@ def predict_with_confidence(model, X_row: pd.DataFrame) -> dict:
     counts, bin_edges = np.histogram(all_preds, bins='auto')
 
     # # Filter out bins with zero counts
-    # non_zero_mask = counts > 0
-    # filtered_counts = counts[non_zero_mask]
-    # filtered_bin_edges = bin_edges[:-1][non_zero_mask]  # Left edges of non-zero bins
+    non_zero_mask = counts > 10
+    filtered_counts = counts[non_zero_mask]
+    filtered_bin_edges = bin_edges[:-1][non_zero_mask]  # Left edges of non-zero bins
 
     return {
         'prediction': mean_pred,
@@ -105,8 +105,8 @@ def predict_with_confidence(model, X_row: pd.DataFrame) -> dict:
         'upper_bound': mean_pred + 1.96 * std_pred,
         'std_dev': std_pred,
         'histogram': {
-            'counts': counts.tolist(),
-            'bin_edges': bin_edges.tolist()
+            'counts': filtered_counts.tolist(),
+            'bin_edges': filtered_bin_edges.tolist()
         }
     }
 

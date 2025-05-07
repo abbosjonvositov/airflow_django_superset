@@ -31,10 +31,70 @@
         width: 100%;
     }
 </style>
+<style>
+    .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 10px 20px;
+        border-radius: 5px;
+        color: white;
+        font-size: 16px;
+        z-index: 1000;
+        opacity: 0.9;
+        transition: opacity 0.3s ease;
+    }
+    .notification.success {
+        background-color: green;
+    }
+    .notification.error {
+        background-color: red;
+    }
+</style>
 
 <div class="main-container">
+    <div class="">
+        <div class="row">
 
+            <!-- Three small cards in one row -->
+            <div class="col-lg-12">
 
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-30">
+                        <div class="card-box pd-30 height-100-p">
+
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-30">
+
+                        <div class="card-box pd-30 height-100-p">
+
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-30">
+                        <div class="card-box pd-30 height-100-p">
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Large card below the three small cards -->
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 mb-30">
+                        <div class="card-box pd-30 height-100-p">
+                            <!-- Large card content -->
+                            <div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Updated Submit Button -->
 
 {% endblock %}

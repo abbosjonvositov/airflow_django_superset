@@ -21,6 +21,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.cache import cache
+from django.http import HttpResponse
+from rest_framework.permissions import AllowAny  # Ensure public access
+
 
 tashkent_district_filter_map = {
     "Almazar": "Алмазарский район",
@@ -114,7 +117,7 @@ class IndividualPredictionAPI(APIView):
             'is_primary': request.data.get('is_primary')
         }
         # Cache data with a timeout (e.g., 5 minutes)
-        cache.set('prediction_features', data, timeout=300)
+        cache.set('prediction_features', data, timeout=None)
         with open('response.json', 'w', encoding='utf-8-sig') as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
 
@@ -141,6 +144,7 @@ class IndividualPredictionAPI(APIView):
         }
 
         return Response(response_data, status=status.HTTP_200_OK)
+
 
 class BulkPredictionView(TemplateView):
     template_name = 'bulk_prediction.html'
@@ -178,6 +182,7 @@ class BulkPredictionView(TemplateView):
         context['type_of_market'] = type_of_market
 
         return context
+
 
 class MLUIView(TemplateView):
     template_name = 'ml_ui.html'
@@ -629,3 +634,24 @@ class DistrictsCountView(APIView):
         }
 
         return Response(response_data)
+
+
+
+
+
+class DownloadBulkTemplate(APIView):
+    permission_classes = [AllowAny]  # Allow anyone to access
+
+    def get(self, request, *args, **kwargs):
+        # Define the template file path
+        file_path = os.path.join(settings.BASE_DIR, "real_estate_dashapp/bulk_template/bulk_template.xlsx")
+
+        # Check if the file exists
+        if not os.path.exists(file_path):
+            return HttpResponse("File not found", status=404)
+
+        # Open the file and prepare response
+        with open(file_path, "rb") as file:
+            response = HttpResponse(file.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            response["Content-Disposition"] = 'attachment; filename="bulk_template.xlsx"'
+            return response

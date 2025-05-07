@@ -64,9 +64,9 @@
                             <!-- Large card content -->
                             <div>
                                 <select class="form-control filter" name="district_name">
-                                <option value="" disabled selected>LightGB</option>
-<!--                                <option value="#">LightGB</option>-->
-                            </select>
+                                    <option value="" disabled selected>LightGBM</option>
+                                    <!--                                <option value="#">LightGB</option>-->
+                                </select>
 
 
                             </div>
@@ -78,6 +78,13 @@
                     <div class="col-lg-4 col-md-6 col-sm-12 mb-30">
                         <div class="card-box pd-30 height-100-p">
                             <div class="progress-box text-center" style="margin-top: 10px">
+                                <h4>
+                                    Download template for bulk prediction
+                                </h4>
+                                <button class="btn btn-success w-100 mt-3 text-visible"
+                                        type="button" id="download_bulk_template">Download
+                                </button>
+
                             </div>
                         </div>
                     </div>
@@ -86,12 +93,28 @@
 
                         <div class="card-box pd-30 height-100-p">
                             <div class="progress-box text-center" style="margin-top: 10px">
+                                <h4>
+                                    Upload data for prediction
+                                </h4>
+                                <div class="form-group mt-3">
+
+                                    <input type="file" class="form-control-file form-control height-auto">
+                                </div>
+                                <button class="btn btn-success w-100 mt-3 text-visible"
+                                        type="button" id="submit_data">Submit
+                                </button>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-6 col-sm-12 mb-30">
                         <div class="card-box pd-30 height-100-p">
                             <div class="progress-box text-center" style="margin-top: 10px">
+                                <h4>
+                                    Start prediction
+                                </h4>
+                                <button class="btn btn-success w-100 mt-3 text-visible"
+                                        type="button">Start
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -102,7 +125,16 @@
                     <div class="col-lg-12 col-md-12 mb-30">
                         <div class="card-box pd-30 height-100-p">
                             <!-- Large card content -->
-                            <div id="histogram_chart">
+                            <div class="loading-animation" id="loading-region-by-stat"
+                                 style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;">
+                                <video autoplay loop muted>
+                                    <source src="{% static 'loading_animations/animation_4.webm' %}" type="video/webm">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+
+                            <div>
+
 
                             </div>
                         </div>
@@ -112,11 +144,23 @@
         </div>
     </div>
 </div>
-<!--<script src="https://code.highcharts.com/highcharts.js"></script>-->
-<!--<script src="https://code.highcharts.com/modules/histogram-bellcurve.js"></script>-->
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const downloadButton = document.getElementById("download_bulk_template");
 
+    downloadButton.addEventListener("click", function () {
+        // Create a hidden link element
+        const link = document.createElement("a");
+        link.href = "/download/download_bulk_template/";
+        link.setAttribute("download", "bulk_template.xlsx"); // Optional: sets the filename
 
-<!-- Updated Submit Button -->
+        // Append link to body, trigger click, then remove it
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+});
+</script>
 
 {% endblock %}
