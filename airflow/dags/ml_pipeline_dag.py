@@ -20,6 +20,8 @@ sys.path.append(os.path.abspath('/opt/airflow/ml_pipeline'))
 from ml_pipeline_extract import extract_data_for_ml_algorithm
 from ml_pipeline_data_preprocess import data_preprocess
 from random_forrest import random_forest_algo
+from xgboost_algo import xgboost_algo
+from l_algo import lightgbm_algorithm
 
 default_args = {
     'owner': 'airflow',
@@ -58,5 +60,17 @@ random_forrest_algorithm = PythonOperator(
     dag=dag,
 )
 
+xgboost_algorithm = PythonOperator(
+    task_id='xgboost_algorithm_train',
+    python_callable=xgboost_algo,
+    dag=dag,
+)
+
+lightgbm_algorithm = PythonOperator(
+    task_id='lightgbm_algorithm_train',
+    python_callable=lightgbm_algorithm,
+    dag=dag,
+)
+
 # Define Task Execution Order
-extract_data_for_analysis >> preprocess_data_for_analysis >> random_forrest_algorithm
+extract_data_for_analysis >> preprocess_data_for_analysis >> [random_forrest_algorithm, xgboost_algorithm, lightgbm_algorithm]

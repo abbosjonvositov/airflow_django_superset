@@ -38,8 +38,7 @@ def random_forest_algo_(**context):
             'min_weight_fraction_leaf': [0.0],
             'max_leaf_nodes': [None],
             'warm_start': [True],
-            'ccp_alpha': [0.01],
-            'n_jobs': [-1]
+            'ccp_alpha': [0.01]
         }
 
         param_combinations = list(product(*param_grid.values()))
@@ -120,35 +119,57 @@ def random_forest_algo(**context):
 
             X_train, X_test, y_train, y_test = preprocess_data(X, y)
 
-            # Train the model
-            model = RandomForestRegressor(n_estimators=1000, random_state=23)
-            model.fit(X_train, y_train)
-            score = model.score(X_test, y_test)
-            y_pred = model.predict(X_test)
+            param_grid = {
+                'n_estimators': [1000],
+                'max_depth': [None],
+                'min_samples_split': [5],
+                'min_samples_leaf': [1],
+                'max_features': [None],
+                'oob_score': [True],
+                'criterion': ['squared_error'],
+                'max_samples': [None],
+                'min_weight_fraction_leaf': [0.0],
+                'max_leaf_nodes': [None],
+                'warm_start': [True],
+                'ccp_alpha': [0.01],
+                'n_jobs': [-1]
+            }
+            param_combinations = list(product(*param_grid.values()))
+            total_iterations = len(param_combinations)
 
-            # Store model info
-            model_instance = Model.objects.create(model_type='RandomForest')
-            ModelTrainingData.objects.create(
-                model=model_instance,
-                data_range_start=data_range_start,
-                data_range_end=data_range_end
-            )
+            for iteration, values in enumerate(param_combinations, start=1):
+                param_dict = dict(zip(param_grid.keys(), values))
+                print(f"Iteration {iteration}/{total_iterations}: {param_dict}")
 
-            # Store metrics
-            metrics = calculate_metrics(y_test, y_pred)
-            ModelMetric.objects.create(
-                model=model_instance,
-                rmse=metrics['RMSE'],
-                mse=metrics['MSE'],
-                mape=metrics['MAPE'],
-                mae=metrics['MAE'],
-                r2=metrics['R2'],
-                obesrvations=filtered_df.shape[0]
-            )
+                # Train the model
+                model = RandomForestRegressor(**param_dict, random_state=23)
+                model.fit(X_train, y_train)
+                score = model.score(X_test, y_test)
+                y_pred = model.predict(X_test)
 
-            best_models.append((model_instance.model_name, score))
-            print(
-                f"Trained model {model_instance.model_name} from {data_range_start} to {data_range_end} - Score: {score}")
+                # Store model info
+                model_instance = Model.objects.create(model_type='RandomForest')
+                ModelTrainingData.objects.create(
+                    model=model_instance,
+                    data_range_start=data_range_start,
+                    data_range_end=data_range_end
+                )
+
+                # Store metrics
+                metrics = calculate_metrics(y_test, y_pred)
+                ModelMetric.objects.create(
+                    model=model_instance,
+                    rmse=metrics['RMSE'],
+                    mse=metrics['MSE'],
+                    mape=metrics['MAPE'],
+                    mae=metrics['MAE'],
+                    r2=metrics['R2'],
+                    observations_count=filtered_df.shape[0]
+                )
+
+                best_models.append((model_instance.model_name, score))
+                print(
+                    f"Trained model {model_instance.model_name} from {data_range_start} to {data_range_end} - Score: {score}")
 
         return '-- STATUS: SUCCESS | ALL MODELS TRAINED (NEW ONLY) | METRICS STORED --'
 
