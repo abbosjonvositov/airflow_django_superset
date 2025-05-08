@@ -68,36 +68,31 @@
                                 <hr>
 
                                 <div class="metric-container">
-                                    <h5 style="text-align: center;">R2</h5>
-                                    <div id="r2-chart-random-forrest"></div>
+                                    <div id="r2-chart-randomforest"></div>
                                 </div>
 
                                 <hr>
 
                                 <div class="metric-container">
-                                    <h5 style="text-align: center;">MAPE</h5>
-                                    <div id="mape-chart-random-forrest"></div>
+                                    <div id="mape-chart-randomforest"></div>
                                 </div>
 
                                 <hr>
 
                                 <div class="metric-container">
-                                    <h5 style="text-align: center;">RMSE</h5>
-                                    <div id="rmse-chart-random-forrest"></div>
+                                    <div id="rmse-chart-randomforest"></div>
                                 </div>
 
                                 <hr>
 
                                 <div class="metric-container">
-                                    <h5 style="text-align: center;">MSE</h5>
-                                    <div id="mse-chart-random-forrest"></div>
+                                    <div id="mse-chart-randomforest"></div>
                                 </div>
 
                                 <hr>
 
                                 <div class="metric-container">
-                                    <h5 style="text-align: center;">MAE</h5>
-                                    <div id="mae-chart-xgboost"></div>
+                                    <div id="mae-chart-randomforest"></div>
                                 </div>
 
                             </div>
@@ -114,35 +109,30 @@
                                 <hr>
 
                                 <div class="metric-container">
-                                    <h5 style="text-align: center;">R2</h5>
                                     <div id="r2-chart-lightgbm"></div>
                                 </div>
 
                                 <hr>
 
                                 <div class="metric-container">
-                                    <h5 style="text-align: center;">MAPE</h5>
                                     <div id="mape-chart-lightgbm"></div>
                                 </div>
 
                                 <hr>
 
                                 <div class="metric-container">
-                                    <h5 style="text-align: center;">RMSE</h5>
                                     <div id="rmse-chart-lightgbm"></div>
                                 </div>
 
                                 <hr>
 
                                 <div class="metric-container">
-                                    <h5 style="text-align: center;">MSE</h5>
                                     <div id="mse-chart-lightgbm"></div>
                                 </div>
 
                                 <hr>
 
                                 <div class="metric-container">
-                                    <h5 style="text-align: center;">MAE</h5>
                                     <div id="mae-chart-lightgbm"></div>
                                 </div>
 
@@ -158,35 +148,30 @@
                                 <hr>
 
                                 <div class="metric-container">
-                                    <h5 style="text-align: center;">R2</h5>
                                     <div id="r2-chart-xgboost"></div>
                                 </div>
 
                                 <hr>
 
                                 <div class="metric-container">
-                                    <h5 style="text-align: center;">MAPE</h5>
                                     <div id="mape-chart-xgboost"></div>
                                 </div>
 
                                 <hr>
 
                                 <div class="metric-container">
-                                    <h5 style="text-align: center;">RMSE</h5>
                                     <div id="rmse-chart-xgboost"></div>
                                 </div>
 
                                 <hr>
 
                                 <div class="metric-container">
-                                    <h5 style="text-align: center;">MSE</h5>
                                     <div id="mse-chart-xgboost"></div>
                                 </div>
 
                                 <hr>
 
                                 <div class="metric-container">
-                                    <h5 style="text-align: center;">MAE</h5>
                                     <div id="mae-chart-xgboost"></div>
                                 </div>
 
@@ -200,6 +185,49 @@
     </div>
 </div>
 
-<!-- Updated Submit Button -->
+<script>
+    const apiUrl = "{% url 'model_metrics_view' %}";
+
+    function fetchAndRenderCharts(modelType) {
+        fetch(`${apiUrl}?model_type=${modelType}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log("Fetched Data for", modelType, ":", data["r2"]);
+                const metrics = ["r2", "mape", "rmse", "mse", "mae"];
+                metrics.forEach(metric => {
+                    renderChart(metric, data[metric], modelType);
+                });
+            })
+            .catch(error => console.error("Error fetching model metrics:", error));
+    }
+
+    function renderChart(metric, data, modelType) {
+        let containerId = `${metric}-chart-${modelType.toLowerCase().replace(/\s+/g, '-')}`;
+        console.log("Generated Container ID:", containerId);
+        console.log("Element Exists?", !!document.getElementById(containerId));
+
+
+        Highcharts.chart(`${metric}-chart-${modelType.toLowerCase().replace(/\s+/g, '-')}`, {
+            chart: { type: 'line' },
+            title: { text: `${metric.toUpperCase()} for ${modelType}` },
+            xAxis: {
+                categories: Object.keys(data),
+                title: { text: 'Month' }
+            },
+            yAxis: {
+                title: { text: metric.toUpperCase() }
+            },
+            series: [{
+                name: metric,
+                data: Object.values(data)
+            }]
+        });
+    }
+
+    // Example usage:
+    fetchAndRenderCharts("RandomForest");
+    fetchAndRenderCharts("LightGBM");
+    fetchAndRenderCharts("XGBoost");
+</script>
 
 {% endblock %}

@@ -172,7 +172,7 @@ def random_forest_algo(**context):
                 best_models.append((model_instance.model_name, score))
                 print(
                     f"Trained model {model_instance.model_name} from {data_range_start} to {data_range_end} - Score: {score}")
-                save_model(model=model, filename='random_forrest')
+                # save_model(model=model, filename='random_forrest')
                 print('---- RANDOM FORREST | PKL MODEL SAVED SUCCESSFULLY ----')
 
         return '-- STATUS: SUCCESS | ALL MODELS TRAINED (NEW ONLY) | METRICS STORED --'

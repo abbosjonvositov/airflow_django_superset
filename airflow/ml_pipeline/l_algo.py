@@ -106,6 +106,7 @@ def lightgbm_algorithm(**context):
                 print(
                     f"Trained model {model_instance.model_name} from {data_range_start} to {data_range_end} - Score: {score}")
                 save_model(model=model, filename='lightgbm')
+                save_expected_columns(X)
                 print('---- LIGHTGBM | PKL MODEL SAVED SUCCESSFULLY ----')
 
         return '-- STATUS: SUCCESS | ALL MODELS TRAINED (NEW ONLY) | METRICS STORED --'

@@ -667,11 +667,12 @@ class MetricsAPIView(APIView):
         ).values('data_range_end', 'r2', 'mape', 'rmse', 'mse', 'mae')
 
         metrics_dict = {}
+        earliest_data_range = queryset.order_by('data_range_end').first()['data_range_end'].strftime('%Y-%m')
         for data in queryset:
-            data_range = data['data_range_end'].strftime('%Y-%m')  # Formatting YYYY-MM
+            data_range = f"{earliest_data_range} {data['data_range_end'].strftime('%Y-%m')}"  # Adjusted format
             for metric in ['r2', 'mape', 'rmse', 'mse', 'mae']:
                 if metric not in metrics_dict:
                     metrics_dict[metric] = {}
-                metrics_dict[metric][data_range] = round(data[metric], 4)  # Rounding to 4 decimal places
+                metrics_dict[metric][data_range] = round(data[metric], 4)
 
         return Response(metrics_dict, status=status.HTTP_200_OK)
