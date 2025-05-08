@@ -32,9 +32,9 @@ default_args = {
 }
 
 dag = DAG(
-    'ml_pipeline',
+    'ml_pipeline_random_forest',
     default_args=default_args,
-    description='ML Pipeline',
+    description='ML Pipeline Random Forest',
     schedule_interval=timedelta(days=1),  # Scheduled to run daily
     catchup=False,  # Disable catching up on missed runs
     max_active_runs=1,  # Limit DAG to one active instance

@@ -17,6 +17,8 @@ urlpatterns = [
     path('get-geojson/', tashkent_geojson, name='get_geojson'),
     path("api/districts-count/", DistrictsCountView.as_view(), name="districts-count"),
 
+    path("api/model_metrics/", MetricsAPIView.as_view(), name="model_metrics_view"),
+
     path("download/download_bulk_template/", DownloadBulkTemplate.as_view(), name="download_bulk_template_view"),
 
 ]

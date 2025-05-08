@@ -1,10 +1,4 @@
-import os
-from django.shortcuts import render
-from django.http import JsonResponse
 from django.db.models import Avg, Count, Q
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from .serializers import FactApartmentsSerializer
 from django.views.generic import TemplateView
 from .models import *
 from datetime import datetime, timedelta
@@ -23,7 +17,9 @@ from rest_framework import status
 from django.core.cache import cache
 from django.http import HttpResponse
 from rest_framework.permissions import AllowAny  # Ensure public access
-
+from django.http import JsonResponse
+from rest_framework.views import APIView
+from django.db.models import F
 
 tashkent_district_filter_map = {
     "Almazar": "Алмазарский район",
@@ -636,9 +632,6 @@ class DistrictsCountView(APIView):
         return Response(response_data)
 
 
-
-
-
 class DownloadBulkTemplate(APIView):
     permission_classes = [AllowAny]  # Allow anyone to access
 
@@ -652,6 +645,33 @@ class DownloadBulkTemplate(APIView):
 
         # Open the file and prepare response
         with open(file_path, "rb") as file:
-            response = HttpResponse(file.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            response = HttpResponse(file.read(),
+                                    content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
             response["Content-Disposition"] = 'attachment; filename="bulk_template.xlsx"'
             return response
+
+
+class MetricsAPIView(APIView):
+    def get(self, request):
+        model_type = request.query_params.get('model_type', None)
+        if not model_type:
+            return Response({'error': 'model_type parameter is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        queryset = Model.objects.filter(model_type__icontains=model_type).annotate(
+            data_range_end=F('training_data__data_range_end'),
+            r2=F('metrics__r2'),
+            mape=F('metrics__mape'),
+            rmse=F('metrics__rmse'),
+            mse=F('metrics__mse'),
+            mae=F('metrics__mae')
+        ).values('data_range_end', 'r2', 'mape', 'rmse', 'mse', 'mae')
+
+        metrics_dict = {}
+        for data in queryset:
+            data_range = data['data_range_end'].strftime('%Y-%m')  # Formatting YYYY-MM
+            for metric in ['r2', 'mape', 'rmse', 'mse', 'mae']:
+                if metric not in metrics_dict:
+                    metrics_dict[metric] = {}
+                metrics_dict[metric][data_range] = round(data[metric], 4)  # Rounding to 4 decimal places
+
+        return Response(metrics_dict, status=status.HTTP_200_OK)

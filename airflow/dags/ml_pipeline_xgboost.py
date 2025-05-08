@@ -21,7 +21,6 @@ from ml_pipeline_extract import extract_data_for_ml_algorithm
 from ml_pipeline_data_preprocess import data_preprocess
 from xgboost_algo import xgboost_algo
 
-
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,  # Prevents dependencies on previous task runs
@@ -33,9 +32,9 @@ default_args = {
 }
 
 dag = DAG(
-    'ml_pipeline',
+    'ml_pipeline_xgboost',
     default_args=default_args,
-    description='ML Pipeline',
+    description='ML Pipeline XGBoost',
     schedule_interval=timedelta(days=1),  # Scheduled to run daily
     catchup=False,  # Disable catching up on missed runs
     max_active_runs=1,  # Limit DAG to one active instance
