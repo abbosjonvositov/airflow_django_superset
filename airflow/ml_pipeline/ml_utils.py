@@ -113,14 +113,32 @@ def fill_missing_with_mode(df, columns, group_by='district_name'):
     return df
 
 
+
+
 def save_model(model, filename):
     scaler_path = os.path.join("/shared_data", "pkls", f'{filename}.pkl')
+
+    # Check if the file exists and remove it
+    if os.path.exists(scaler_path):
+        os.remove(scaler_path)
+        print(f"Existing file {filename}.pkl removed.")
+
+    # Save the new model
     dump(model, scaler_path)
     print(f"Model saved as {filename}.pkl")
-    print(f"Expected columns saved as {filename}_columns.pkl")
+
 
 
 def save_expected_columns(X):
     expected_columns = list(X.columns)
-    scaler_path = os.path.join("/shared_data", "pkls", f'expected_columns.pkl')
+    scaler_path = os.path.join("/shared_data", "pkls", 'expected_columns.pkl')
+
+    # Check if the file exists and remove it
+    if os.path.exists(scaler_path):
+        os.remove(scaler_path)
+        print("Existing file expected_columns.pkl removed.")
+
+    # Save the new expected columns list
     dump(expected_columns, scaler_path)
+    print("Expected columns saved as expected_columns.pkl")
+

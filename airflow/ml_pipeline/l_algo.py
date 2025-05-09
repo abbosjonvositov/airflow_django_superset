@@ -53,32 +53,59 @@ def lightgbm_algorithm(**context):
             X = df_one_hot_encoded.drop(columns=['price_usd'])
             y = df_one_hot_encoded['price_usd']
 
+            print(X.columns)
+
             X_train, X_test, y_train, y_test = preprocess_data(X, y)
 
             param_grid = {
                 'n_estimators': [1000],
-                'max_depth': [None],
                 'learning_rate': [None],
-                'num_leaves': [1000]
+                'max_depth': [None],
+                'num_leaves': [1000],
+                'min_child_samples': [10],
+                'min_child_weight': [1e-3],
+                'subsample': [0.8],
+                'colsample_bytree': [1.0],
+                'reg_alpha': [0.0],
+                'reg_lambda': [0.3],
+                'early_stopping_rounds': [10],
+                'random_state': [23]
             }
 
-            param_combinations = list(product(*param_grid.values()))
+            param_combinations = list(product(
+                param_grid['n_estimators'], param_grid['learning_rate'], param_grid['max_depth'],
+                param_grid['num_leaves'], param_grid['min_child_samples'], param_grid['min_child_weight'],
+                param_grid['subsample'], param_grid['colsample_bytree'], param_grid['reg_alpha'],
+                param_grid['reg_lambda'], param_grid['early_stopping_rounds']
+            ))
             total_iterations = len(param_combinations)
 
-            for iteration, (n_estimators, max_depth, learning_rate, num_leaves) in enumerate(param_combinations,
-                                                                                             start=1):
-                print(f"Iteration {iteration}/{total_iterations}: n_estimators={n_estimators}, max_depth={max_depth}, "
-                      f"learning_rate={learning_rate}, num_leaves={num_leaves}")
+            for iteration, params in enumerate(param_combinations, start=1):
+                (n_estimators, learning_rate, max_depth, num_leaves, min_child_samples, min_child_weight,
+                 subsample, colsample_bytree, reg_alpha, reg_lambda, early_stopping_rounds_value) = params
+
+                print(f"Iteration {iteration}/{total_iterations}: {params}")
 
                 model = LGBMRegressor(
                     n_estimators=n_estimators,
-                    max_depth=max_depth,
                     learning_rate=learning_rate,
+                    max_depth=max_depth,
                     num_leaves=num_leaves,
-                    random_state=42,
-                    force_col_wise=True
+                    min_child_samples=min_child_samples,
+                    min_child_weight=min_child_weight,
+                    subsample=subsample,
+                    colsample_bytree=colsample_bytree,
+                    reg_alpha=reg_alpha,
+                    reg_lambda=reg_lambda,
+                    early_stopping_rounds=early_stopping_rounds_value,
+                    random_state=23,
+                    force_col_wise=True,
                 )
-                model.fit(X_train, y_train)
+                model.fit(
+                    X_train, y_train,
+                    eval_set=[(X_test, y_test)],
+                    eval_metric="mse",
+                )
                 score = model.score(X_test, y_test)  # Evaluate on test set
                 y_pred = model.predict(X_test)
 
