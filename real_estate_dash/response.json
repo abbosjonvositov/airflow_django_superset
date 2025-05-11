@@ -1,13 +1,13 @@
 ﻿{
-    "district_name": "Чиланзарский район",
-    "number_of_rooms": "1",
-    "floors": "3",
-    "total_floors": "1",
-    "total_area": "65",
-    "foundation_name": "Панельный",
-    "layout_name": "Смежно-раздельная",
-    "wc_name": "Совмещенный",
-    "repair_name": "Евроремонт",
+    "district_name": "Сергелийский район",
+    "number_of_rooms": "2",
+    "floors": "2",
+    "total_floors": "7",
+    "total_area": "55",
+    "foundation_name": "Кирпичный",
+    "layout_name": "Раздельная",
+    "wc_name": "Раздельный",
+    "repair_name": "Средний",
     "year_month": "2025-04",
-    "is_primary": "1"
+    "is_primary": "0"
 }
