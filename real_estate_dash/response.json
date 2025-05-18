@@ -1,13 +1,13 @@
 ﻿{
-    "district_name": "Шайхантахурский район",
-    "number_of_rooms": "3",
-    "floors": "3",
-    "total_floors": "5",
-    "total_area": "120",
+    "district_name": "Чиланзарский район",
+    "number_of_rooms": "2",
+    "floors": "4",
+    "total_floors": "4",
+    "total_area": "20",
     "foundation_name": "Панельный",
-    "layout_name": "Раздельная",
-    "wc_name": "Раздельный",
+    "layout_name": "Смежно-раздельная",
+    "wc_name": "2 санузла и более",
     "repair_name": "Евроремонт",
-    "year_month": "2025-03",
+    "year_month": "2024-11",
     "is_primary": "1"
 }

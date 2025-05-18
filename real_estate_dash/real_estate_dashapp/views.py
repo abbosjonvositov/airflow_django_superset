@@ -98,7 +98,7 @@ class IndividualPredictionView(TemplateView):
 class IndividualPredictionAPI(APIView):
     def post(self, request):
         """Receives form data and caches it for later model predictions."""
-
+        year, month = request.data.get('year_month').split('-')
         data = {
             'district_name': request.data.get('district_name'),
             'number_of_rooms': request.data.get('number_of_rooms'),
@@ -109,7 +109,8 @@ class IndividualPredictionAPI(APIView):
             'layout_name': request.data.get('layout_name'),
             'wc_name': request.data.get('wc_name'),
             'repair_name': request.data.get('repair_name'),
-            'year_month': request.data.get('year_month'),
+            'year': int(year),
+            'month': int(month),
             'is_primary': request.data.get('is_primary')
         }
         # Cache data with a timeout (e.g., 5 minutes)

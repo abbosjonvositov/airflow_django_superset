@@ -60,7 +60,7 @@ def preprocess_data_single_entry(X, scaler):
 
 def prepare_input(incoming_data: pd.DataFrame, expected_columns: list) -> pd.DataFrame:
     """One-hot encodes and aligns input data to match training features."""
-    categorical_cols = ['district_name', 'foundation_name', 'layout_name', 'repair_name', 'wc_name', 'year_month']
+    categorical_cols = ['district_name', 'foundation_name', 'layout_name', 'repair_name', 'wc_name']
     incoming_encoded = pd.get_dummies(incoming_data, columns=categorical_cols)
     # term = ['year_month_2025-04', 'year_month_2025-05', ]
     # expected_columns = [col for col in expected_columns if col not in term]
