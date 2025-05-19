@@ -4,7 +4,7 @@ import time
 from lightgbm import LGBMRegressor
 import sys
 import os
-
+import pandas as pd
 from datetime import datetime
 from real_estate_dashapp.models import Model, ModelMetric, ModelTrainingData
 
@@ -20,7 +20,10 @@ def lightgbm_algorithm(**context):
             raise ValueError("No data received from XCom.")
 
         # Get sorted unique months
-        months = sorted(cleaned_df['year_month'].unique())
+        month_df = cleaned_df.copy()
+        month_df['year_month'] = pd.to_datetime(month_df[['year', 'month']].assign(day=1)).dt.strftime('%Y-%m')
+        months = sorted(month_df['year_month'].unique())
+
         print(months)
 
         best_models = []
@@ -46,28 +49,26 @@ def lightgbm_algorithm(**context):
                 continue  # Skip iteration if data range already trained
 
             # Prepare data
-            filtered_df = cleaned_df[cleaned_df['year_month'].isin(subset_months)]
+            filtered_df = cleaned_df[month_df['year_month'].isin(subset_months)]
             categorical_columns = cleaned_df.select_dtypes(include=['object']).columns.tolist()
             df_one_hot_encoded = apply_one_hot_encoding(filtered_df, categorical_columns)
 
             X = df_one_hot_encoded.drop(columns=['price_usd'])
             y = df_one_hot_encoded['price_usd']
 
-            print(X.columns)
-
             X_train, X_test, y_train, y_test = preprocess_data(X, y)
 
             param_grid = {
                 'n_estimators': [1000],
-                'learning_rate': [None],
+                'learning_rate': [0.11213619582835252],
                 'max_depth': [None],
-                'num_leaves': [1000],
-                'min_child_samples': [10],
-                'min_child_weight': [1e-3],
-                'subsample': [0.8],
-                'colsample_bytree': [1.0],
-                'reg_alpha': [0.0],
-                'reg_lambda': [0.3],
+                "num_leaves": [500],
+                'min_child_weight': [0.012133013204476073],
+                "min_child_samples": [33],
+                'subsample': [0.7248500765862023],
+                'colsample_bytree': [0.9517624347879201],
+                'reg_alpha': [1],
+                'reg_lambda': [0.9630469936739557],
                 'early_stopping_rounds': [10],
                 'random_state': [23]
             }

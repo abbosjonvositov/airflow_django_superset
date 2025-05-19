@@ -6,6 +6,7 @@ import sys
 import os
 from datetime import datetime
 from real_estate_dashapp.models import Model, ModelMetric, ModelTrainingData
+import pandas as pd
 
 sys.path.append("/opt/airflow/django_project")
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "real_estate_dash.settings")
@@ -86,7 +87,12 @@ def random_forest_algo(**context):
             raise ValueError("No data received from XCom.")
 
         # Get sorted unique months
-        months = sorted(cleaned_df['year_month'].unique())
+        # months = sorted(cleaned_df['year_month'].unique())
+        # print(months)
+        month_df = cleaned_df.copy()
+        month_df['year_month'] = pd.to_datetime(month_df[['year', 'month']].assign(day=1)).dt.strftime('%Y-%m')
+        months = sorted(month_df['year_month'].unique())
+
         print(months)
 
         best_models = []
@@ -112,7 +118,7 @@ def random_forest_algo(**context):
                 continue  # Skip iteration if data range already trained
 
             # Prepare data
-            filtered_df = cleaned_df[cleaned_df['year_month'].isin(subset_months)]
+            filtered_df = cleaned_df[month_df['year_month'].isin(subset_months)]
             categorical_columns = cleaned_df.select_dtypes(include=['object']).columns.tolist()
             df_one_hot_encoded = apply_one_hot_encoding(filtered_df, categorical_columns)
 
@@ -124,17 +130,16 @@ def random_forest_algo(**context):
             param_grid = {
                 'n_estimators': [1000],
                 'max_depth': [None],
-                'min_samples_split': [5],
-                'min_samples_leaf': [1],
+                'min_samples_split': [2],
+                'min_samples_leaf': [10],
                 'max_features': [None],
                 'oob_score': [True],
                 'criterion': ['squared_error'],
                 'max_samples': [None],
                 'min_weight_fraction_leaf': [0.0],
                 'max_leaf_nodes': [None],
-                'warm_start': [True],
-                'ccp_alpha': [0.01],
-                'n_jobs': [-1]
+                'warm_start': [False],
+                'ccp_alpha': [0.05],
             }
             param_combinations = list(product(*param_grid.values()))
             total_iterations = len(param_combinations)

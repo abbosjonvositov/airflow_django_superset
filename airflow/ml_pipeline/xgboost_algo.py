@@ -6,6 +6,7 @@ import sys
 import os
 from datetime import datetime
 from real_estate_dashapp.models import Model, ModelMetric, ModelTrainingData
+import pandas as pd
 
 sys.path.append("/opt/airflow/django_project")
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "real_estate_dash.settings")
@@ -19,7 +20,12 @@ def xgboost_algo(**context):
             raise ValueError("No data received from XCom.")
 
         # Get sorted unique months
-        months = sorted(cleaned_df['year_month'].unique())
+        # months = sorted(cleaned_df['year_month'].unique())
+        # print(months)
+        month_df = cleaned_df.copy()
+        month_df['year_month'] = pd.to_datetime(month_df[['year', 'month']].assign(day=1)).dt.strftime('%Y-%m')
+        months = sorted(month_df['year_month'].unique())
+
         print(months)
 
         best_models = []
@@ -45,7 +51,7 @@ def xgboost_algo(**context):
                 continue  # Skip iteration if data range already trained
 
             # Prepare data
-            filtered_df = cleaned_df[cleaned_df['year_month'].isin(subset_months)]
+            filtered_df = cleaned_df[month_df['year_month'].isin(subset_months)]
             categorical_columns = cleaned_df.select_dtypes(include=['object']).columns.tolist()
             df_one_hot_encoded = apply_one_hot_encoding(filtered_df, categorical_columns)
 
@@ -55,28 +61,37 @@ def xgboost_algo(**context):
             X_train, X_test, y_train, y_test = preprocess_data(X, y)
 
             param_grid = {
-                'n_estimators': [1000],
-                'max_depth': [9],
-                'learning_rate': [0.1],
-                'gamma': [0]
+                'n_estimators': [696],
+                'max_depth': [15],
+                'learning_rate': [0.052229370288901435],
+                'gamma': [0],
+                'subsample': [0.9545061669656212],
+                'colsample_bytree': [1],
+                'colsample_bylevel': [1],
+                'colsample_bynode': [0.8531864051192173],
+                'min_child_weight': [10],
+                'reg_alpha': [1],
+                'reg_lambda': [5],
+                'max_delta_step': [0],
+                'grow_policy': ['depthwise'],
+                'verbosity': [1],
+                'eval_metric': ['rmse']
             }
 
             param_combinations = list(product(*param_grid.values()))
-            total_iterations = len(param_combinations)
+            best_params = {}
+            best_score = float('-inf')
+            best_model = None
+            best_eval_results = {}
 
-            for iteration, (n_estimators, max_depth, learning_rate, gamma) in enumerate(param_combinations, start=1):
-                print(f"Iteration {iteration}/{total_iterations}: n_estimators={n_estimators}, max_depth={max_depth}, "
-                      f"learning_rate={learning_rate}, gamma={gamma}")
+            for params in param_combinations:
+                param_dict = {key: value for key, value in zip(param_grid.keys(), params)}
+                print(f"Testing parameters: {param_dict}")
 
                 # Train the model
-                model = XGBRegressor(
-                    n_estimators=n_estimators,
-                    max_depth=max_depth,
-                    learning_rate=learning_rate,
-                    gamma=gamma,
-                    random_state=42
-                )
-                model.fit(X_train, y_train)
+                model = XGBRegressor(**param_dict, random_state=42)
+                model.fit(X_train, y_train, eval_set=[(X_train, y_train), (X_test, y_test)], verbose=False)
+
                 score = model.score(X_test, y_test)
                 y_pred = model.predict(X_test)
 

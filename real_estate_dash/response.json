@@ -1,13 +1,14 @@
 ﻿{
-    "district_name": "Чиланзарский район",
-    "number_of_rooms": "2",
-    "floors": "4",
-    "total_floors": "4",
-    "total_area": "20",
-    "foundation_name": "Панельный",
-    "layout_name": "Смежно-раздельная",
-    "wc_name": "2 санузла и более",
+    "district_name": "Юнусабадский район",
+    "number_of_rooms": "3",
+    "floors": "2",
+    "total_floors": "2",
+    "total_area": "122",
+    "foundation_name": "Кирпичный",
+    "layout_name": "Раздельная",
+    "wc_name": "Совмещенный",
     "repair_name": "Евроремонт",
-    "year_month": "2024-11",
+    "year": 2024,
+    "month": 11,
     "is_primary": "1"
 }

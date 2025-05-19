@@ -71,11 +71,14 @@ def extract_data_for_ml_algorithm(**context):
 
         price_uzs = obj.numeric.price if obj.numeric.price else None
         price_usd = price_uzs / exchange_rate if price_uzs and exchange_rate else None
-        year_month = aware_datetime.strftime('%Y-%m') if aware_datetime else None
+        # year_month = aware_datetime.strftime('%Y-%m') if aware_datetime else None
+        year = aware_datetime.year if aware_datetime else None
+        month = aware_datetime.month if aware_datetime else None
 
         records.append({
             'price_usd': price_usd,
-            'year_month': year_month,
+            'year': year,
+            'month': month,
             'district_name': obj.location.district.district_name if obj.location and obj.location.district else None,
             'type_of_market': obj.characteristic.type_of_market if obj.characteristic else None,
             'foundation_name': obj.characteristic.foundation.foundation_name if obj.characteristic and obj.characteristic.foundation else None,

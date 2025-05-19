@@ -3,6 +3,7 @@ version: '3.8'
 services:
   postgres_db:
     image: postgres:15
+    shm_size: '2gb'
     container_name: postgres_db
     restart: always
     env_file:

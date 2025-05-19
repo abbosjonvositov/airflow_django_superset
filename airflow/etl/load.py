@@ -52,6 +52,15 @@ def load_data(**context):
     all_data = context['task_instance'].xcom_pull(task_ids='transform_data', key='transformed_data')
     date, usd_uzs_rate = extract_exchange_rate()
     try:
+        ExchangeRateDim.objects.using('default').create(
+            datetime=add_timezone(date),
+            usd_uzs_rate=usd_uzs_rate
+        )
+        print('✅ Exchange rate updated')
+    except Exception as e:
+        pass
+        # print(f'Error: {e}')
+    try:
         for index, row in enumerate(all_data):
             # Sync ORM methods
             city_dim, created_city = CityDim.objects.using('default').get_or_create(city_name=row.get('city_name'))
@@ -126,15 +135,7 @@ def load_data(**context):
                     'characteristic': characteristic
                 }
             )
-            try:
-                ExchangeRateDim.objects.using('default').create(
-                    datetime=add_timezone(date),
-                    usd_uzs_rate=usd_uzs_rate
-                )
-                print('✅ Exchange rate updated')
-            except Exception as e:
-                continue
-                # print(f'Error: {e}')
+
 
 
     except Exception as e:
