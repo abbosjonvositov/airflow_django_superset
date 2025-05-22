@@ -59,10 +59,10 @@ def lightgbm_algorithm(**context):
             X_train, X_test, y_train, y_test = preprocess_data(X, y)
 
             param_grid = {
-                'n_estimators': [1000],
+                'n_estimators': [996],
                 'learning_rate': [0.11213619582835252],
-                'max_depth': [None],
-                "num_leaves": [500],
+                'max_depth': [0],
+                "num_leaves": [273],
                 'min_child_weight': [0.012133013204476073],
                 "min_child_samples": [33],
                 'subsample': [0.7248500765862023],

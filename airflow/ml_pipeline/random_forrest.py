@@ -128,7 +128,7 @@ def random_forest_algo(**context):
             X_train, X_test, y_train, y_test = preprocess_data(X, y)
 
             param_grid = {
-                'n_estimators': [1000],
+                'n_estimators': [100],
                 'max_depth': [None],
                 'min_samples_split': [2],
                 'min_samples_leaf': [10],
@@ -141,6 +141,7 @@ def random_forest_algo(**context):
                 'warm_start': [False],
                 'ccp_alpha': [0.05],
             }
+
             param_combinations = list(product(*param_grid.values()))
             total_iterations = len(param_combinations)
 
