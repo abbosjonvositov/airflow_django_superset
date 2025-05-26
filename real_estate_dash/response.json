@@ -1,14 +1,14 @@
 ﻿{
-    "district_name": "Янгихаётский район",
-    "number_of_rooms": "2",
-    "floors": "3",
-    "total_floors": "4",
-    "total_area": "22",
+    "district_name": "Шайхантахурский район",
+    "number_of_rooms": "5",
+    "floors": "1",
+    "total_floors": "5",
+    "total_area": "120",
     "foundation_name": "Панельный",
-    "layout_name": "Смежно-раздельная",
-    "wc_name": "2 санузла и более",
-    "repair_name": "Авторский проект",
+    "layout_name": "Раздельная",
+    "wc_name": "Раздельный",
+    "repair_name": "Евроремонт",
     "year": 2024,
-    "month": 11,
-    "is_primary": "1"
+    "month": 12,
+    "is_primary": "0"
 }

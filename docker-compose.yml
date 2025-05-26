@@ -15,7 +15,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
       interval: 5s
@@ -99,6 +99,6 @@ services:
                superset init &&
                superset fab create-admin --username admin --password admin --firstname Superset --lastname Admin --email admin@example.com &&
                superset run -h 0.0.0.0 -p 8088"
-#volumes:
-#  postgres_data:
-#  mysql_data:
+volumes:
+  postgres_data:
+  mysql_data:
