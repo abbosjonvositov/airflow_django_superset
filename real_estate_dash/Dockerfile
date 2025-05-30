@@ -1,9 +1,6 @@
 # Use the official slim Python image
 FROM python:3.13-slim-bullseye
 
-USER root
-
-
 # Set the working directory
 WORKDIR /app
 
@@ -23,5 +20,9 @@ COPY . .
 # Expose the default Django port
 EXPOSE 8000
 
-# Default command
-CMD ["sh", "-c", "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+# Add a startup script to handle conditional migrations
+COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Set default entrypoint
+ENTRYPOINT ["/entrypoint.sh"]

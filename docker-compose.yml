@@ -7,7 +7,7 @@ services:
     container_name: postgres_db
     restart: always
     env_file:
-      - .env  # Load environment variables from .env file
+      - .env
     environment:
       POSTGRES_DB: ${SQL_NAME}
       POSTGRES_USER: ${SQL_USER}
@@ -21,6 +21,60 @@ services:
       interval: 5s
       retries: 5
       start_period: 10s
+
+  restore_service:
+    image: postgres:15
+    container_name: postgres_restore
+    restart: "no"
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      PGPASSWORD: ${SQL_PASSWORD}
+    volumes:
+      - ./backups:/backups
+    command: >
+      bash -c "
+      until pg_isready -h postgres_db -p 5432 -U ${SQL_USER}; do sleep 5; done;
+      export PGPASSWORD=${SQL_PASSWORD};
+      
+      echo 'Restoring database...';
+      pg_restore --if-exists --clean -U ${SQL_USER} -h postgres_db -d ${SQL_NAME} -F c /backups/latest.dump 2>> /backups/restore.log;
+      
+      echo 'Restore complete!';
+      touch /backups/restore_complete.flag;
+      exit 0;"
+
+  backup_service:
+    image: postgres:15
+    container_name: postgres_backup
+    restart: always
+    depends_on:
+      restore_service:
+        condition: service_completed_successfully  # Ensures restore is done first
+    env_file:
+      - .env
+    environment:
+      PGPASSWORD: ${SQL_PASSWORD}
+    volumes:
+      - ./backups:/backups
+    command: >
+      bash -c "
+      until [ -f /backups/restore_complete.flag ]; do
+        echo 'Waiting for restore to complete...';
+        sleep 10;
+      done;
+      
+      echo 'Starting backup service...';
+      while true; do
+        TIMESTAMP=$(date +%Y%m%d_%H%M%S);
+        pg_dump -U ${SQL_USER} -h postgres_db -d ${SQL_NAME} -F c -f /backups/db_backup_$TIMESTAMP.dump;
+        ls -lt /backups | awk 'NR>7 {print $9}' | xargs rm -f;
+        cp /backups/db_backup_$TIMESTAMP.dump /backups/latest.dump;
+        sleep 86400;
+      done"
 
   airflow:
     build: ./airflow  # Use the custom Airflow Dockerfile
@@ -57,10 +111,10 @@ services:
     container_name: django_app
     restart: always
     depends_on:
-      postgres_db:
-        condition: service_healthy  # Wait for PostgreSQL to be ready
+      restore_service:
+        condition: service_completed_successfully  # Ensures restore is done first
     env_file:
-      - .env  # Load environment variables from .env file
+      - .env
     environment:
       DJANGO_SETTINGS_MODULE: real_estate_dash.settings
     ports:
@@ -68,21 +122,17 @@ services:
     volumes:
       - ./real_estate_dash:/app
       - ./shared_data:/shared_data
-    command: >
-      bash -c "until pg_isready -h postgres_db -p 5432 -U ${SQL_USER}; do sleep 2; done &&
-               python manage.py makemigrations &&
-               python manage.py migrate &&
-               python manage.py runserver 0.0.0.0:8000"
+    command: [ "/entrypoint.sh" ]
 
   superset:
     image: apache/superset:4.1.2
     container_name: superset
     restart: always
     depends_on:
-      postgres_db:
-        condition: service_healthy  # Ensure MySQL is ready
+      restore_service:
+        condition: service_completed_successfully  # Ensures restore is done first
     env_file:
-      - .env  # Load environment variables from .env file
+      - .env
     environment:
       SUPERSET_WEBSERVER_PORT: 8088
       SUPERSET_SECRET_KEY: 'mysecretkey123'
@@ -90,7 +140,7 @@ services:
     ports:
       - "8088:8088"
     volumes:
-      - ./superset:/home/superset  # Mount your cloned directory here
+      - ./superset:/home/superset
       - ./superset/superset_config.py:/app/superset_config.py
       - ./superset_home:/app/superset_home
     command: >
@@ -99,6 +149,6 @@ services:
                superset init &&
                superset fab create-admin --username admin --password admin --firstname Superset --lastname Admin --email admin@example.com &&
                superset run -h 0.0.0.0 -p 8088"
+
 volumes:
   postgres_data:
-  mysql_data:
