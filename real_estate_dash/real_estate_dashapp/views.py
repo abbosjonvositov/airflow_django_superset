@@ -1,3 +1,5 @@
+from logging import exception
+from .forms import *
 from django.db.models import Avg, Count, Q
 from django.views.generic import TemplateView
 from .models import *
@@ -20,6 +22,27 @@ from rest_framework.permissions import AllowAny  # Ensure public access
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from django.db.models import F
+from django.contrib.auth.views import LoginView, LogoutView
+import logging
+from django.conf import settings
+from django.contrib.auth import login
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from django.core.mail import send_mail
+from django.core.signing import dumps, loads, BadSignature
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect, render
+from django.urls import reverse, reverse_lazy
+from django.views import View
+from django.views.generic.edit import FormView
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+from django.views import View
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.templatetags.static import static
+
+logger = logging.getLogger(__name__)
 
 tashkent_district_filter_map = {
     "Almazar": "Алмазарский район",
@@ -677,3 +700,113 @@ class MetricsAPIView(APIView):
                 metrics_dict[metric][data_range] = round(data[metric], 4)
 
         return Response(metrics_dict, status=status.HTTP_200_OK)
+
+
+class UserLoginView(LoginView):
+    template_name = "login.html"
+    redirect_authenticated_user = True  # Redirect already logged-in users
+
+    def get_success_url(self):
+        return reverse_lazy("base_view")  # Correct way to redirect
+
+
+class UserRegisterView(FormView):
+    template_name = "signup.html"
+    form_class = CustomUserCreationForm
+    success_url = reverse_lazy("verify_email_notice")
+
+    from django.templatetags.static import static
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        token = dumps(data)
+
+        verification_url = self.request.build_absolute_uri(
+            reverse("verify_email", args=[token])
+        )
+        # banner_url = self.request.build_absolute_uri(static("vendors/images/black_banner.png"))
+
+        context = {
+            "username": data["username"],
+            "verification_url": verification_url,
+        }
+
+        subject = "Activate Your Account"
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to_email = data["email"]
+
+        text_body = render_to_string("emails/activation_email.txt", context)
+        html_body = render_to_string("emails/activation_email.html", context)
+
+        try:
+            msg = EmailMultiAlternatives(subject, text_body, from_email, [to_email])
+            msg.attach_alternative(html_body, "text/html")
+            msg.send()
+            logger.info(f"Verification email sent to {to_email}")
+        except Exception as e:
+            logger.exception("Error sending verification email")
+            return render(self.request, "email_verification_failed.html", {"error": str(e)})
+
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class VerifyEmailView(View):
+    def get(self, request, token):
+        try:
+            data = loads(token)
+
+            if User.objects.filter(username=data["username"]).exists():
+                logger.warning("Duplicate registration attempt for username: %s", data["username"])
+                return render(request, "email_verification_failed.html", {"error": "User already exists."})
+
+            user = User.objects.create_user(
+                username=data["username"],
+                email=data["email"],
+                password=data["password1"]
+            )
+            user.is_active = True
+            user.save()
+
+            login(request, user)
+            logger.info("User verified and logged in: %s", user.username)
+            return redirect("login")
+        except (BadSignature, KeyError, Exception) as e:
+            logger.exception("Email verification failed")
+            return render(request, "email_verification_failed.html")
+
+
+class ResendVerificationView(View):
+    def get(self, request):
+        if not request.user.is_authenticated or request.user.is_active:
+            return redirect("login")
+
+        data = {
+            "username": request.user.username,
+            "email": request.user.email,
+            "password1": request.user.password,
+        }
+
+        token = dumps(data)
+        verification_url = request.build_absolute_uri(
+            reverse("verify_email", args=[token])
+        )
+
+        try:
+            send_mail(
+                subject="Verify your email",
+                message=f"Here’s your verification link again:\n{verification_url}",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[data["email"]],
+            )
+            logger.info(f"Resent verification email to {data['email']}")
+        except Exception as e:
+            logger.exception("Error resending verification email")
+            return render(request, "email_verification_failed.html", {"error": str(e)})
+
+        return redirect("verify_email_notice")
+
+
+class UserLogoutView(View):
+    def get(self, request):
+        logout(request)
+        return redirect("login")  # Replace with your desired redirect URL name

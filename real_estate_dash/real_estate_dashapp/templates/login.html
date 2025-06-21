@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+{% include 'components_base/_header.html' %}
+{% load static %}
+<body class="login-page">
+<div class="login-wrap d-flex align-items-center justify-content-center">
+    <div class="container">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="login-box bg-white box-shadow border-radius-10 p-4">
+                    <div class="login-title text-center mb-4">
+                        <img src="{% static 'vendors/images/black_banner.png' %}" alt="Logo"
+                             class="dark-logo" style="width: 257px; height: 55px;">
+                    </div>
+                    <form action="{% url 'login' %}" method="post" novalidate>
+                        {% csrf_token %}
+                        <div class="input-group custom mb-3">
+                            <input type="text" class="form-control form-control-lg" name="username"
+                                   placeholder="Username" required>
+                            <div class="input-group-append custom">
+                                <span class="input-group-text"><i class="icon-copy dw dw-user1"></i></span>
+                            </div>
+                        </div>
+                        <div class="input-group custom mb-4">
+                            <input type="password" class="form-control form-control-lg" name="password"
+                                   placeholder="Password" required>
+                            <div class="input-group-append custom">
+                                <span class="input-group-text"><i class="dw dw-padlock1"></i></span>
+                            </div>
+                        </div>
+                        <div class="form-group mb-4 text-center">
+                            <a href="#" class="text-muted small">Forgot Password?</a>
+                        </div>
+                        <button type="submit" class="btn btn-lg btn-block"
+                                style="background-color: #10144a; color: white;">
+                            Login
+                        </button>
+                        <div class="text-center mt-3">
+                            <span class="text-muted">Don't have an account?</span>
+                            <a href="{% url 'signup' %}" class="ml-1">Sign Up</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% include 'components_base/_scripts.html' %}
+</body>
+</html>

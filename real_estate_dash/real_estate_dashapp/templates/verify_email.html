@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+{% include 'components_base/_header.html' %}
+<body class="login-page">
+  <div class="login-wrap d-flex align-items-center justify-content-center">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+          <div class="login-box bg-white box-shadow border-radius-10 p-5 text-center">
+<!--            <img src="{% static 'vendors/images/email_verification.png' %}" alt="Verify"-->
+<!--                 class="img-fluid mb-4" style="max-height: 130px;">-->
+            <h4 class="mb-3" style="color: #10144a;">Almost There!</h4>
+            <p class="text-muted">
+              We’ve sent a verification link to your email address.
+              Please click the link to activate your account.
+            </p>
+            <p class="text-muted small mt-3">
+              Didn’t receive it? <a href="{% url 'resend_verification' %}">Resend email</a> or contact support.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% include 'components_base/_scripts.html' %}
+</body>
+</html>

@@ -1,0 +1,7 @@
+Hi {{ username }},
+Thank you for registering!
+
+Please verify your email by clicking the link below:
+{{ verification_url }}
+
+If you didn’t request this, feel free to ignore it.

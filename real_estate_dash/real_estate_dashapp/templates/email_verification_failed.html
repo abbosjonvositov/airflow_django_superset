@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+{% include 'components_base/_header.html' %}
+<body class="login-page">
+  <div class="login-wrap d-flex align-items-center justify-content-center">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+          <div class="login-box bg-white box-shadow border-radius-10 p-5 text-center">
+            <img src="{% static 'vendors/images/email_failed.png' %}" alt="Failed"
+                 class="img-fluid mb-4" style="max-height: 130px;">
+            <h4 class="mb-3" style="color: #c0392b;">Verification Failed</h4>
+            <p class="text-muted">
+              We couldn't verify your email. The link may be invalid, expired, or already used.
+            </p>
+            {% if error %}
+              <p class="text-danger small mt-3">{{ error }}</p>
+            {% endif %}
+            <div class="mt-4">
+              <a href="{% url 'signup' %}" class="btn btn-outline-dark">Try Again</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% include 'components_base/_scripts.html' %}
+</body>
+</html>
