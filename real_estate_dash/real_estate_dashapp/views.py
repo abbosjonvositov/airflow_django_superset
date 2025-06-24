@@ -41,6 +41,7 @@ from django.views import View
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.templatetags.static import static
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 logger = logging.getLogger(__name__)
 
@@ -59,8 +60,9 @@ tashkent_district_filter_map = {
 }
 
 
-class BaseView(TemplateView):
+class BaseView(LoginRequiredMixin, TemplateView):
     template_name = 'index.html'
+    login_url = '/login/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -76,12 +78,14 @@ class BaseView(TemplateView):
         return context
 
 
-class SuperSetView(TemplateView):
+class SuperSetView(LoginRequiredMixin, TemplateView):
     template_name = 'superset_dash.html'
+    login_url = '/login/'
 
 
-class IndividualPredictionView(TemplateView):
+class IndividualPredictionView(LoginRequiredMixin, TemplateView):
     template_name = 'individual_prediction.html'
+    login_url = '/login/'
 
     def get_context_data(self, **kwargs):
         districts = [
@@ -118,7 +122,9 @@ class IndividualPredictionView(TemplateView):
         return context
 
 
-class IndividualPredictionAPI(APIView):
+class IndividualPredictionAPI(LoginRequiredMixin, APIView):
+    login_url = '/login/'
+
     def post(self, request):
         """Receives form data and caches it for later model predictions."""
         year, month = request.data.get('year_month').split('-')
@@ -144,6 +150,7 @@ class IndividualPredictionAPI(APIView):
         return Response({"success": True, "message": "Features cached successfully."}, status=status.HTTP_200_OK)
 
     def get(self, request):
+        login_url = '/login/'
         """Retrieves cached features, applies the model, and returns the prediction."""
 
         data = cache.get('prediction_features')
@@ -166,8 +173,10 @@ class IndividualPredictionAPI(APIView):
         return Response(response_data, status=status.HTTP_200_OK)
 
 
-class BulkPredictionView(TemplateView):
+class BulkPredictionView(LoginRequiredMixin, TemplateView):
     template_name = 'bulk_prediction.html'
+    login_url = '/login/'
+
 
     def get_context_data(self, **kwargs):
         districts = [
@@ -204,11 +213,15 @@ class BulkPredictionView(TemplateView):
         return context
 
 
-class MLUIView(TemplateView):
+class MLUIView(LoginRequiredMixin, TemplateView):
     template_name = 'ml_ui.html'
+    login_url = '/login/'
 
 
-class ApartmentStatsView(APIView):
+
+class ApartmentStatsView(LoginRequiredMixin, APIView):
+    login_url = '/login/'
+
     def get(self, request):
         # Get the latest 30 dates correctly
         latest_entries = FactApartments.objects.select_related("time").order_by("-time__datetime")
@@ -280,7 +293,9 @@ class ApartmentStatsView(APIView):
         return Response(data)
 
 
-class ByRegionOrDistrictStatsView(APIView):
+class ByRegionOrDistrictStatsView(LoginRequiredMixin, APIView):
+    login_url = '/login/'
+
     def get(self, request):
         # Get the latest 30 dates correctly
         latest_entries = FactApartments.objects.select_related("time").order_by("-time__datetime")
@@ -389,7 +404,9 @@ class ByRegionOrDistrictStatsView(APIView):
         return Response(data)
 
 
-class ListingsCountByRegionView(APIView):
+class ListingsCountByRegionView(LoginRequiredMixin, APIView):
+    login_url = '/login/'
+
     def get(self, request, *args, **kwargs):
         # Get filter parameters
         num_rooms = request.GET.get("number_of_rooms")
@@ -425,7 +442,9 @@ class ListingsCountByRegionView(APIView):
         return Response(response_data)
 
 
-class ListingsShareView(View):
+class ListingsShareView(LoginRequiredMixin, View):
+    login_url = '/login/'
+
     def get(self, request, *args, **kwargs):
         allowed_regions = [
             "andizhanskaya-oblast", "buharskaya-oblast", "dzhizakskaya-oblast",
@@ -452,7 +471,9 @@ class ListingsShareView(View):
         return JsonResponse(response_data)
 
 
-class MonthlyAveragePriceAPIView(APIView):
+class MonthlyAveragePriceAPIView(LoginRequiredMixin, APIView):
+    login_url = '/login/'
+
     def get(self, request):
         allowed_regions = [
             "andizhanskaya-oblast", "buharskaya-oblast", "dzhizakskaya-oblast",
@@ -611,7 +632,9 @@ def tashkent_geojson(request):
         return JsonResponse({'error': 'Invalid JSON format'}, status=400)
 
 
-class DistrictsCountView(APIView):
+class DistrictsCountView(LoginRequiredMixin, APIView):
+    login_url = '/login/'
+
     def get(self, request, *args, **kwargs):
         ALLOWED_DISTRICTS = [
             "Мирабадский район", "Яккасарайский район", "Мирзо-Улугбекский район",
@@ -656,7 +679,9 @@ class DistrictsCountView(APIView):
         return Response(response_data)
 
 
-class DownloadBulkTemplate(APIView):
+class DownloadBulkTemplate(LoginRequiredMixin, APIView):
+    login_url = '/login/'
+
     permission_classes = [AllowAny]  # Allow anyone to access
 
     def get(self, request, *args, **kwargs):
@@ -675,7 +700,9 @@ class DownloadBulkTemplate(APIView):
             return response
 
 
-class MetricsAPIView(APIView):
+class MetricsAPIView(LoginRequiredMixin, APIView):
+    login_url = '/login/'
+
     def get(self, request):
         model_type = request.query_params.get('model_type', None)
         if not model_type:
@@ -703,6 +730,7 @@ class MetricsAPIView(APIView):
 
 
 class UserLoginView(LoginView):
+
     template_name = "login.html"
     redirect_authenticated_user = True  # Redirect already logged-in users
 
@@ -711,6 +739,7 @@ class UserLoginView(LoginView):
 
 
 class UserRegisterView(FormView):
+
     template_name = "signup.html"
     form_class = CustomUserCreationForm
     success_url = reverse_lazy("verify_email_notice")
@@ -806,7 +835,9 @@ class ResendVerificationView(View):
         return redirect("verify_email_notice")
 
 
-class UserLogoutView(View):
+class UserLogoutView(LoginRequiredMixin, View):
+    login_url = '/login/'
+
     def get(self, request):
         logout(request)
         return redirect("login")  # Replace with your desired redirect URL name
