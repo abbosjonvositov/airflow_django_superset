@@ -76,6 +76,7 @@ services:
         sleep 86400;
       done"
 
+
   airflow:
     build: ./airflow  # Use the custom Airflow Dockerfile
     container_name: airflow_webserver
@@ -122,7 +123,23 @@ services:
     volumes:
       - ./real_estate_dash:/app
       - ./shared_data:/shared_data
+      - ./real_estate_dash/static:/static
     command: [ "/entrypoint.sh" ]
+
+  nginx:
+    image: nginx:1.27.5
+    container_name: nginx_proxy
+    restart: always
+    depends_on:
+      - django_app
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./real_estate_dash/static:/etc/nginx/html
+    networks:
+      - default
+
 
   superset:
     image: apache/superset:4.1.2

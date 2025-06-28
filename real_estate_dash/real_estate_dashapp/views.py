@@ -99,7 +99,19 @@ class IndividualPredictionView(LoginRequiredMixin, TemplateView):
                        'Малосемейка', 'Студия', 'Пентхаус']
         foundation_name = ['Кирпичный', 'Панельный', 'Монолитный', 'Блочный', 'Деревянный']
         wc_name = ['Совмещенный', 'Раздельный', '2 санузла и более']
-        year_month = ['2024-11', '2024-12', '2025-01', '2025-02', '2025-03', '2025-04', '2025-05']
+        # year_month = ['2024-11', '2024-12', '2025-01', '2025-02', '2025-03', '2025-04', '2025-05']
+        year_month_list = (
+            DimTime.objects
+            .filter(year__isnull=False, month__isnull=False)
+            .values('year', 'month')
+            .distinct()
+            .order_by('year', 'month')
+        )
+
+        # Format as 'YYYY-MM'
+        year_month = [
+            f"{item['year']}-{item['month']:02d}" for item in year_month_list
+        ]
         repair_name = ['Авторский проект', 'Евроремонт', 'Черновая отделка',
                        'Требует ремонта', 'Предчистовая отделка', 'Средний']
         type_of_market = {

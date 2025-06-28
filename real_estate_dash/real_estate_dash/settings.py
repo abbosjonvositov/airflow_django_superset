@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-b(2%_e8%igxwg)b84&+n+p831_=s_h%9v7003cb*jd#rma6ect
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '40.76.124.175', 'vardera.live']
 
 # Application definition
 
@@ -129,7 +129,7 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / 'static'
 STATICFILES_DIRS = [
     BASE_DIR / 'real_estate_dashapp/static'
