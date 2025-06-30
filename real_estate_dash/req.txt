@@ -28,3 +28,5 @@ scikit-learn
 dill==0.3.7
 lightgbm==4.6.0
 gunicorn==23.0.0
+whitenoise==6.9.0
+

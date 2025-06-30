@@ -118,8 +118,8 @@ services:
       - .env
     environment:
       DJANGO_SETTINGS_MODULE: real_estate_dash.settings
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     volumes:
       - ./real_estate_dash:/app
       - ./shared_data:/shared_data
@@ -136,7 +136,7 @@ services:
       - "80:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./real_estate_dash/static:/etc/nginx/html
+      - ./real_estate_dash/static:/static:ro
     networks:
       - default
 
