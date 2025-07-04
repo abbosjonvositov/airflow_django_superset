@@ -133,7 +133,7 @@ services:
     depends_on:
       - django_app
     ports:
-      - "8080:80"  # You can change to 80:80 if host port 80 is free
+      - "8000:80"  # You can change to 80:80 if host port 80 is free
       - "8443:443"  # Optional: expose HTTPS if using inside Docker
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
