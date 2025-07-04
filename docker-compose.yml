@@ -138,8 +138,8 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./real_estate_dash/static:/static:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-      - /etc/ssl/certs:/etc/ssl/certs:ro  # Sometimes required for intermediate certs
+      - /etc/letsencrypt:/etc/letsencrypt:ro  # ✅ system-wide certs
+      - /etc/ssl/certs:/etc/ssl/certs:ro      # ✅ optional, helps with chain
     networks:
       - default
 
